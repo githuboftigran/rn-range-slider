@@ -1,0 +1,30 @@
+{
+  "name": "rn-range-slider-tmp",
+  "version": "0.0.1",
+  "author": "mail.of.tigran@gmail.com",
+  "description": "A native slider for range selection.",
+  "homepage": "https://github.com/githuboftigran/rn-range-slider",
+  "main": "index.js",
+  "scripts": {
+    "test": ""
+  },
+  "keywords": [
+    "custom",
+    "slider",
+    "range-slidaer",
+    "react-component",
+    "react-native-component",
+    "react-native",
+    "android",
+    "ios"
+  ],
+  "repository" : {
+    "type": "git",
+    "utl": "https://github.com/githuboftigran/rn-range-slider.git"
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "license": "MIT"
+}
