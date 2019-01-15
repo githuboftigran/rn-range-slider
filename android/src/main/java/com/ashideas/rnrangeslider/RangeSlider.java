@@ -38,7 +38,7 @@ public class RangeSlider extends View {
     private static final int DEFAULT_MAX = 100;
     private static final int DEFAULT_STEP = 1;
 
-    private static final float DEFAULT_LINE_WIDTH = 12;
+    private static final float DEFAULT_LINE_WIDTH = 4;
     private static final float DEFAULT_THUMB_RADIUS = 10;
     private static final float DEFAULT_THUMB_BORDER_WIDTH = 2;
 
@@ -164,6 +164,7 @@ public class RangeSlider extends View {
     }
 
     public void setLineWidth(float lineWidth) {
+        lineWidth = dpToPx(lineWidth);
         selectionPaint.setStrokeWidth(lineWidth);
         blankPaint.setStrokeWidth(lineWidth);
         ViewCompat.postInvalidateOnAnimation(this);
@@ -297,6 +298,7 @@ public class RangeSlider extends View {
         int oldLow = this.lowValue;
         this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - 1);
         checkAndFireValueChangeEvent(oldLow, highValue, false);
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     /**
@@ -307,6 +309,7 @@ public class RangeSlider extends View {
         int oldHigh = this.highValue;
         this.highValue = MathUtils.clamp(highValue, lowValue + 1, maxValue);
         checkAndFireValueChangeEvent(lowValue, oldHigh, false);
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     @Override
