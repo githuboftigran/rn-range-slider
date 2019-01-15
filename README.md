@@ -2,7 +2,7 @@
 A fully customizable high quality react native Slider component backed by custom native iOS and Android views with ability to select range of values.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/githuboftigran/rn-range-slider/master/demo.gif" width="200" height="200">
+<img src="https://raw.githubusercontent.com/githuboftigran/rn-range-slider/master/demo.gif" width="298" height="176">
 </p>
 
 <p align="center">
