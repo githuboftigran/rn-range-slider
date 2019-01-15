@@ -39,7 +39,7 @@ import RangeSlider from 'rn-range-slider';
 
 | Property |      Description      | Type | Default Value |
 |----------|-----------------------|------|:-------------:|
-| onValueChanged | A callback to be called when value was changed.<br/>**(lowValue, highValue, fromUser) => {}**<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by setting **lowValue** or **highValue** properties). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | Number | **4** |
+| onValueChanged | A callback to be called when value was changed.<br/>**(lowValue, highValue, fromUser) => {}**<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by setting **lowValue** or **highValue** properties). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | Function | **4** |
 | rangeEnabled | Slider works as an ordinary slider with 1 control if false | Boolean | **true** |
 | lineWidth | Width of slider's line | Number | **4** |
 | thumbRadius |  Radius of thumb (including border) | Number | **10** |
