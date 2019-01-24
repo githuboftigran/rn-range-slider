@@ -51,7 +51,8 @@ import RangeSlider from 'rn-range-slider';
 | labelTailHeight | Height of label bubble's tail | Number | **8** |
 | labelGapHeight |  Gap between label and slider | Number | **4** |
 | textFormat |  This string will be formatted with active value and shown in thumb | String<br/>**"Price: %d**" =><br/>"**Price: 75**"<br/>if the current value is 75 | **%d**<br/> (just the number) |
-| labelStyle |  Style of the label.<br/>Label is not shown if **none** | String<br/>Currently supported values:<br/>- **none**<br/>- **bubble** | **bubble** |
+| labelStyle |  Style of the label.<br/>Label is not shown if **none** | String<br/><br/>Currently supported values:<br/>- **none**<br/>- **bubble** | **bubble** |
+| gravity | Vertical gravity of drawn content | String<br/><br/>Currently supported values:<br/>- **top**<br/>- **bottom**<br/>- **center** | **top** |
 | selectionColor |  Color of selected part | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#4286f4** |
 | blankColor |  Color of unselected part | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#7fffffff** |
 | thumbColor |  Color of thumb | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ffffff** |
