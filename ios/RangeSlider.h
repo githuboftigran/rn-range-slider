@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property float labelGapHeight;
 @property NSString *textFormat;
 @property NSString *labelStyle;
+@property NSString *gravity;
 @property BOOL rangeEnabled;
 @property NSString *selectionColor;
 @property NSString *blankColor;

@@ -22,6 +22,12 @@ public class RangeSlider extends View {
         NONE
     }
 
+    public enum Gravity {
+        TOP,
+        BOTTOM,
+        CENTER
+    }
+
     private static final float SQRT_3 = (float) Math.sqrt(3);
     private static final float SQRT_3_2 = SQRT_3 / 2;
 
@@ -33,6 +39,8 @@ public class RangeSlider extends View {
     private static final String DEFAULT_LABEL_BACKGROUND_COLOR = "#ff60ad";
     private static final String DEFAULT_LABEL_TEXT_COLOR = "#ffffff";
     private static final String DEFAULT_LABEL_BORDER_COLOR = "#d13e85";
+
+    private static final String DEFAULT_GRAVITY = "top";
 
     private static final int DEFAULT_MIN = 0;
     private static final int DEFAULT_MAX = 100;
@@ -76,6 +84,7 @@ public class RangeSlider extends View {
     private float labelBorderWidth;
 
     private boolean rangeEnabled;
+    private Gravity gravity;
 
     private int minValue;
     private int maxValue;
@@ -136,6 +145,7 @@ public class RangeSlider extends View {
         thumbBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         setRangeEnabled(true);
+        setGravity(DEFAULT_GRAVITY);
         setLineWidth(DEFAULT_LINE_WIDTH);
         setThumbRadius(DEFAULT_THUMB_RADIUS);
         setThumbBorderWidth(DEFAULT_THUMB_BORDER_WIDTH);
@@ -240,6 +250,11 @@ public class RangeSlider extends View {
                 lowValue = highValue - 1;
             }
         }
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    public void setGravity(String gravity) {
+        this.gravity = gravity == null ? Gravity.TOP : Gravity.valueOf(gravity.toUpperCase());
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
@@ -385,8 +400,19 @@ public class RangeSlider extends View {
         super.onDraw(canvas);
         float labelTextHeight = getLabelTextHeight();
         float labelHeight = labelStyle == LabelStyle.NONE ? 0 : 2 * labelBorderWidth + labelTailHeight + labelTextHeight + 2 * labelPadding;
+        float labelAndGapHeight = labelStyle == LabelStyle.NONE ? 0 : labelHeight + labelGapHeight;
 
-        float cy = labelHeight + labelGapHeight + thumbRadius;
+        float drawingHeight = labelAndGapHeight + 2 * thumbRadius;
+        float height = getHeight();
+        if (height > drawingHeight) {
+            if (gravity == Gravity.BOTTOM) {
+                canvas.translate(0, height - drawingHeight);
+            } else if(gravity == Gravity.CENTER) {
+                canvas.translate(0, (height - drawingHeight) / 2);
+            }
+        }
+
+        float cy = labelAndGapHeight + thumbRadius;
         float width = getWidth();
         float availableWidth = width - 2 * thumbRadius;
 

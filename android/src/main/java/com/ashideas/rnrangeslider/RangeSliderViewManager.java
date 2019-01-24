@@ -27,6 +27,11 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
         view.setRangeEnabled(enabled);
     }
 
+    @ReactProp(name = "gravity")
+    public void setGravity(RangeSlider view, String gravity) {
+        view.setGravity(gravity);
+    }
+
     @ReactProp(name = "min")
     public void setMin(RangeSlider view, int min) {
         view.setMinValue(min);

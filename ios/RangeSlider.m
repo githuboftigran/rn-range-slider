@@ -7,6 +7,9 @@
 
 #define NONE @"none"
 #define BUBBLE @"bubble"
+#define TOP @"top"
+#define BOTTOM @"bottom"
+#define CENTER @"center"
 #define SQRT_3 (float) sqrt(3)
 #define SQRT_3_2 SQRT_3 / 2
 #define CLAMP(x, min, max) (x < min ? min : x > max ? max : x)
@@ -30,6 +33,7 @@ const float DEFAULT_THUMB_BORDER_WIDTH = 2;
 
 const NSString *DEFAULT_LABEL_TEXT_FORMAT = @"%d";
 const NSString *DEFAULT_LABEL_STYLE = @"bubble";
+const NSString *DEFAULT_GRAVITY = @"top";
 
 const float DEFAULT_TEXT_SIZE = 16;
 const float DEFAULT_LABEL_GAP = 4;
@@ -109,6 +113,7 @@ UIFont *labelFont;
         _labelBorderWidth = DEFAULT_LABEL_BORDER_WIDTH;
         _labelPadding = DEFAULT_LABEL_PADDING;
         _labelStyle = DEFAULT_LABEL_STYLE;
+        _gravity = DEFAULT_GRAVITY;
         _textFormat = DEFAULT_LABEL_TEXT_FORMAT;
         [self setSelectionColor:DEFAULT_SELECTION_COLOR];
         [self setBlankColor:DEFAULT_BLANK_COLOR];
@@ -181,6 +186,11 @@ UIFont *labelFont;
 
 - (void)setLabelStyle:(NSString *)labelStyle {
     _labelStyle = labelStyle;
+    [self setNeedsDisplay];
+}
+
+- (void)setGravity:(NSString *)gravity {
+    _gravity = gravity;
     [self setNeedsDisplay];
 }
 
@@ -346,9 +356,23 @@ UIFont *labelFont;
     NSDictionary<NSAttributedStringKey, id> *labelTextAttributes = @{NSForegroundColorAttributeName: labelTextColor, NSFontAttributeName: labelFont};
     CGRect textRect = [@"0" boundingRectWithSize:CGSizeMake(500, 500) options:NSStringDrawingUsesLineFragmentOrigin attributes:labelTextAttributes context:nil];
     CGFloat labelTextHeight = textRect.size.height;
-    CGFloat labelHeight = _labelStyle == NONE ? 0 : 2 * _labelBorderWidth + _labelTailHeight + labelTextHeight + 2 * _labelPadding;
+    BOOL isNoneStyle = [_labelStyle isEqualToString: NONE];
+    CGFloat labelHeight = isNoneStyle ? 0 : 2 * _labelBorderWidth + _labelTailHeight + labelTextHeight + 2 * _labelPadding;
 
-    CGFloat cy = labelHeight + _labelGapHeight + _thumbRadius;
+    CGFloat labelAndGapHeight = isNoneStyle ? 0 : labelHeight + _labelGapHeight;
+
+    CGFloat drawingHeight = labelAndGapHeight + 2 * _thumbRadius;
+
+    if (rect.size.height > drawingHeight) {
+        if ([_gravity isEqualToString: BOTTOM]) {
+            CGContextTranslateCTM(context, 0, rect.size.height - drawingHeight);
+        } else if([_gravity isEqualToString: CENTER]) {
+            CGContextTranslateCTM(context, 0, (rect.size.height - drawingHeight) / 2);
+        }
+    }
+
+    CGFloat cy = labelAndGapHeight + _thumbRadius;
+
     CGFloat width = rect.size.width;
     CGFloat availableWidth = width - 2 * _thumbRadius;
 
