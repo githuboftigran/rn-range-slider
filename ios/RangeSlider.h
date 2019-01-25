@@ -42,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *labelBackgroundColor;
 @property NSString *labelTextColor;
 @property NSString *labelBorderColor;
-@property int minValue;
-@property int maxValue;
+@property int min;
+@property int max;
 @property int step;
 @property int lowValue;
 @property int highValue;

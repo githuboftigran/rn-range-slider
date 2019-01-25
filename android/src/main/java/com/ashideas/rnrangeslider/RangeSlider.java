@@ -294,11 +294,19 @@ public class RangeSlider extends View {
     }
 
     public void setMinValue(int minValue) {
-        this.minValue = minValue > maxValue ? maxValue - 1 : minValue;
+        this.minValue = minValue >= maxValue ? maxValue - 1 : minValue;
+        if (lowValue < this.minValue) {
+            lowValue = this.minValue;
+            setHighValue(highValue);
+        }
     }
 
     public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue < minValue ? minValue + 1 : maxValue;
+        this.maxValue = maxValue <= minValue ? minValue + 1 : maxValue;
+        if (highValue > this.maxValue) {
+            highValue = this.maxValue;
+            setLowValue(lowValue);
+        }
     }
 
     public void setStep(int step) {

@@ -100,8 +100,8 @@ UIFont *labelFont;
     if (self) {
         [self setBackgroundColor:[UIColor clearColor]];
         activeThumb = THUMB_NONE;
-        _minValue = DEFAULT_MIN;
-        _maxValue = DEFAULT_MAX;
+        _min = DEFAULT_MIN;
+        _max = DEFAULT_MAX;
         _lowValue = DEFAULT_MIN;
         _highValue = DEFAULT_MAX;
         _step = DEFAULT_STEP;
@@ -200,8 +200,8 @@ UIFont *labelFont;
         if (_highValue <= _lowValue) {
             _highValue = _lowValue + 1;
         }
-        if (_highValue > _maxValue) {
-            _highValue = _maxValue;
+        if (_highValue > _max) {
+            _highValue = _max;
         }
         if (_lowValue >= _highValue) {
             _lowValue = _highValue - 1;
@@ -245,24 +245,32 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
-- (void)setMinValue:(int)minValue {
-    _minValue = minValue > _maxValue ? _maxValue - 1 : minValue;
+- (void)setMin:(int)min {
+    _min = min >= _max ? _max - 1 : min;
+    if (_lowValue < _min) {
+        _lowValue = _min;
+        [self setHighValue: _highValue];
+    }
 }
 
-- (void)setMaxValue:(int)maxValue {
-    _maxValue = maxValue < _minValue ? _minValue + 1 : maxValue;
+- (void)setMax:(int)max {
+    _max = max <= _min ? _min + 1 : max;
+    if (_highValue > _max) {
+        _highValue = _max;
+        [self setLowValue: _lowValue];
+    }
 }
 
 - (void)setLowValue:(int)lowValue {
     int oldLow = _lowValue;
-    _lowValue = CLAMP(lowValue, _minValue, _highValue - 1);
+    _lowValue = CLAMP(lowValue, _min, _highValue - 1);
     [self checkAndFireValueChangeEvent:oldLow oldHigh:_highValue fromUser:false];
     [self setNeedsDisplay];
 }
 
 - (void)setHighValue:(int)highValue {
     int oldHigh = _highValue;
-    _highValue = CLAMP(highValue, _lowValue + 1, _maxValue);
+    _highValue = CLAMP(highValue, _lowValue + 1, _max);
     [self checkAndFireValueChangeEvent:_lowValue oldHigh:oldHigh fromUser:false];
     [self setNeedsDisplay];
 }
@@ -296,9 +304,9 @@ UIFont *labelFont;
     if (!_rangeEnabled) {
         _lowValue = pointerValue;
     } else if (activeThumb == THUMB_LOW) {
-        _lowValue = CLAMP(pointerValue, _minValue, _highValue - 1);
+        _lowValue = CLAMP(pointerValue, _min, _highValue - 1);
     } else if (activeThumb == THUMB_HIGH) {
-        _highValue = CLAMP(pointerValue, _lowValue + 1, _maxValue);
+        _highValue = CLAMP(pointerValue, _lowValue + 1, _max);
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
     [self setNeedsDisplay];
@@ -319,13 +327,13 @@ UIFont *labelFont;
 - (int)getValueForPosition {
     CGFloat position = [activeTouch locationInView:self].x;
     if (position <= _thumbRadius) {
-        return _minValue;
+        return _min;
     } else if (position >= [self bounds].size.width - _thumbRadius) {
-        return _maxValue;
+        return _max;
     } else {
         CGFloat availableWidth = [self bounds].size.width - 2 * _thumbRadius;
         position -= _thumbRadius;
-        int value = _minValue + (int) ((_maxValue - _minValue) * position / availableWidth);
+        int value = _min + (int) ((_max - _min) * position / availableWidth);
         value -= value % _step;
         return value;
     }
@@ -383,8 +391,8 @@ UIFont *labelFont;
     [blankColor setStroke];
     CGContextStrokePath(context);
 
-    CGFloat lowX = _thumbRadius + availableWidth * (_lowValue - _minValue) / (_maxValue - _minValue);
-    CGFloat highX = _thumbRadius + availableWidth * (_highValue - _minValue) / (_maxValue - _minValue);
+    CGFloat lowX = _thumbRadius + availableWidth * (_lowValue - _min) / (_max - _min);
+    CGFloat highX = _thumbRadius + availableWidth * (_highValue - _min) / (_max - _min);
 
     // Draw the selected line
     [selectionColor setStroke];

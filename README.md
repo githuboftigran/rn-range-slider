@@ -60,8 +60,8 @@ import RangeSlider from 'rn-range-slider';
 | labelBackgroundColor |  Color label's background | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ff60ad** |
 | labelBorderColor |  Color label's border | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#d13e85** |
 | labelTextColor |  Color label's text | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ffffff** |
-| minValue |  Minimum value of slider | Number (integer) | **0** |
-| maxValue |  Maximum value of slider | Number (integer) | **100** |
+| min |  Minimum value of slider | Number (integer) | **0** |
+| max |  Maximum value of slider | Number (integer) | **100** |
 | step |  Step of slider | Number (integer) | **1** |
 | lowValue |  Current value of lower thumb | Number (integer) | **0** |
 | highValue |  Current value of higher thumb | Number (integer) | **100** |

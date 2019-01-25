@@ -1,6 +1,6 @@
 {
   "name": "rn-range-slider",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "author": "Tigran Sahakyan <mail.of.tigran@gmail.com>",
   "homepage": "https://github.com/githuboftigran/rn-range-slider",
   "main": "index.js",
