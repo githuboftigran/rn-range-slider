@@ -118,7 +118,7 @@ UIFont *labelFont;
         [self setSelectionColor:DEFAULT_SELECTION_COLOR];
         [self setBlankColor:DEFAULT_BLANK_COLOR];
         [self setThumbColor:DEFAULT_THUMB_COLOR];
-        [self setThumbBorderColor:DEFAULT_LABEL_BORDER_COLOR];
+        [self setThumbBorderColor:DEFAULT_THUMB_BORDER_COLOR];
         [self setLabelBackgroundColor:DEFAULT_LABEL_BACKGROUND_COLOR];
         [self setLabelTextColor:DEFAULT_LABEL_TEXT_COLOR];
         [self setLabelBorderColor:DEFAULT_LABEL_BORDER_COLOR];
@@ -349,13 +349,13 @@ UIFont *labelFont;
 
 - (void)drawRect:(CGRect)rect {
 
-    UIColor *blankColor = [RangeSlider colorWithHexString:DEFAULT_BLANK_COLOR];
-    UIColor *selectionColor = [RangeSlider colorWithHexString:DEFAULT_SELECTION_COLOR];
-    UIColor *thumbColor = [RangeSlider colorWithHexString:DEFAULT_THUMB_COLOR];
-    UIColor *thumbBorderColor = [RangeSlider colorWithHexString:DEFAULT_THUMB_BORDER_COLOR];
-    UIColor *labelBackgroundColor = [RangeSlider colorWithHexString:DEFAULT_LABEL_BACKGROUND_COLOR];
-    UIColor *labelTextColor = [RangeSlider colorWithHexString:DEFAULT_LABEL_TEXT_COLOR];
-    UIColor *labelBorderColor = [RangeSlider colorWithHexString:DEFAULT_LABEL_BORDER_COLOR];
+    UIColor *blankColor = [RangeSlider colorWithHexString:_blankColor];
+    UIColor *selectionColor = [RangeSlider colorWithHexString:_selectionColor];
+    UIColor *thumbColor = [RangeSlider colorWithHexString:_thumbColor];
+    UIColor *thumbBorderColor = [RangeSlider colorWithHexString:_thumbBorderColor];
+    UIColor *labelBackgroundColor = [RangeSlider colorWithHexString:_labelBackgroundColor];
+    UIColor *labelTextColor = [RangeSlider colorWithHexString:_labelTextColor];
+    UIColor *labelBorderColor = [RangeSlider colorWithHexString:_labelBorderColor];
 
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextSetLineCap(context, kCGLineCapRound);
