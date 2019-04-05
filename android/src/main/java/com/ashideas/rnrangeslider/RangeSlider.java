@@ -319,7 +319,7 @@ public class RangeSlider extends View {
      */
     public void setLowValue(int lowValue) {
         int oldLow = this.lowValue;
-        this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - 1);
+        this.lowValue = lowValue >= minValue ? lowValue : minValue;
         checkAndFireValueChangeEvent(oldLow, highValue, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -330,7 +330,7 @@ public class RangeSlider extends View {
      */
     public void setHighValue(int highValue) {
         int oldHigh = this.highValue;
-        this.highValue = MathUtils.clamp(highValue, lowValue + 1, maxValue);
+        this.highValue = highValue >= maxValue ? highValue : maxValue;
         checkAndFireValueChangeEvent(lowValue, oldHigh, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
