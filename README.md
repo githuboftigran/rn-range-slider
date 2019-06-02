@@ -78,7 +78,9 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | step |  Step of slider | Number (integer) | **1** |
 | initialLowValue |  Initial value of lower thumb | Number (integer) | **0** |
 | initialHighValue |  Initial value of higher thumb | Number (integer) | **100** |
+
 <br/>
+
 If **initialLowValue** ( or **initialHighValue**) is not provided, it's set to **min** (or **max**).
 
 ### Methods
