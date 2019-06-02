@@ -30,12 +30,26 @@ import RangeSlider from 'rn-range-slider';
 
 ...
 
-<RangeSlider style={{width: 160, height: 80}} />
+<RangeSlider
+    style={{width: 160, height: 80}}
+    gravity={'center'}
+    min={200}
+    max={1000}
+    step={20}
+    selectionColor="#3df"
+    blankColor="#f618"
+    onValueChanged={(low, high, fromUser) => {
+        this.setState({rangeLow: low, rangeHigh: high})
+    }}/>
+/>
 
 ...
 ```
 
 #### Properties
+
+Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
+
 
 | Property |      Description      | Type | Default Value |
 |----------|-----------------------|------|:-------------:|
@@ -53,18 +67,47 @@ import RangeSlider from 'rn-range-slider';
 | textFormat |  This string will be formatted with active value and shown in thumb | String<br/>**"Price: %d**" =><br/>"**Price: 75**"<br/>if the current value is 75 | **%d**<br/> (just the number) |
 | labelStyle |  Style of the label.<br/>Label is not shown if **none** | String<br/><br/>Currently supported values:<br/>- **none**<br/>- **bubble** | **bubble** |
 | gravity | Vertical gravity of drawn content | String<br/><br/>Currently supported values:<br/>- **top**<br/>- **bottom**<br/>- **center** | **top** |
-| selectionColor |  Color of selected part | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#4286f4** |
-| blankColor |  Color of unselected part | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#7fffffff** |
-| thumbColor |  Color of thumb | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ffffff** |
-| thumbBorderColor |  Color of thumb's border | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#cccccc** |
-| labelBackgroundColor |  Color label's background | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ff60ad** |
-| labelBorderColor |  Color label's border | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#d13e85** |
-| labelTextColor |  Color label's text | String<br/>(**#RRGGBB** or **#AARRGGBB**) | **#ffffff** |
+| selectionColor |  Color of selected part | String | **#4286f4** |
+| blankColor |  Color of unselected part | String | **#ffffff7f** |
+| thumbColor |  Color of thumb | String | **#ffffff** |
+| thumbBorderColor |  Color of thumb's border | String | **#cccccc** |
+| labelBackgroundColor |  Color label's background | String | **#ff60ad** |
+| labelBorderColor |  Color label's border | String | **#d13e85** |
+| labelTextColor |  Color label's text | String | **#ffffff** |
 | min |  Minimum value of slider | Number (integer) | **0** |
 | max |  Maximum value of slider | Number (integer) | **100** |
 | step |  Step of slider | Number (integer) | **1** |
-| lowValue |  Current value of lower thumb | Number (integer) | **0** |
-| highValue |  Current value of higher thumb | Number (integer) | **100** |
+| initialLowValue |  Initial value of lower thumb | Number (integer) | **0** |
+| initialHighValue |  Initial value of higher thumb | Number (integer) | **100** |
+
+#### Methods
+
+To call methods on slider you need to have a reference to it's instance.
+React native provides 2 ways to do it.
+And after that you can call these methods on that instance.
+
+```
+...
+<RangeSlider ref="_rangeSlider" />
+...
+this.refs._rangeSlider.setLowValue(42);
+...
+```
+
+or
+
+```
+...
+<RangeSlider ref={ component => this._rangeSlider = component } />
+...
+this._rangeSlider.setLowValue(42);
+...
+```
+
+| Method |      Description      | Params |
+|----------|-----------------------|------|
+| setLowValue | Set low value of slider | value: number |
+| setHighValue | Set high value of slider | value: number |
 
 ## Known issues
 * Label's corner radius is not working on iOS
