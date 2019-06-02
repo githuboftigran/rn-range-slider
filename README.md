@@ -46,14 +46,13 @@ import RangeSlider from 'rn-range-slider';
 ...
 ```
 
-#### Properties
+### Properties
 
 Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 
 
-| Property |      Description      | Type | Default Value |
+| Name |      Description      | Type | Default Value |
 |----------|-----------------------|------|:-------------:|
-| onValueChanged | A callback to be called when value was changed.<br/>**(lowValue, highValue, fromUser) => {}**<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | Function | **4** |
 | rangeEnabled | Slider works as an ordinary slider with 1 control if false | Boolean | **true** |
 | lineWidth | Width of slider's line | Number | **4** |
 | thumbRadius |  Radius of thumb (including border) | Number | **10** |
@@ -79,10 +78,10 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | step |  Step of slider | Number (integer) | **1** |
 | initialLowValue |  Initial value of lower thumb | Number (integer) | **0** |
 | initialHighValue |  Initial value of higher thumb | Number (integer) | **100** |
-
+<br/>
 If **initialLowValue** ( or **initialHighValue**) is not provided, it's set to **min** (or **max**).
 
-#### Methods
+### Methods
 
 To call methods of ```RangeSlider``` you need to have a reference to it's instance.<br/>
 React native provides 2 ways to do it:
@@ -107,10 +106,16 @@ this._rangeSlider.setLowValue(42);
 
 #### Available methos
 
-| Method |      Description      | Params |
-|----------|-----------------------|------|
+| Name |      Description      | Params |
+|---|---|---|
 | setLowValue | Set low value of slider | value: number |
 | setHighValue | Set high value of slider | value: number |
+
+### Callbacks
+
+| Name |      Description    | Params |
+|----------|---------------------|--------|
+| onValueChanged | A callback to be called when value was changed.<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | lowValue: number<br/><br/>highValue: number<br/><br/>fromUser: boolean |
 
 ## Known issues
 * Label's corner radius is not working on iOS
