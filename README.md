@@ -53,7 +53,7 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 
 | Property |      Description      | Type | Default Value |
 |----------|-----------------------|------|:-------------:|
-| onValueChanged | A callback to be called when value was changed.<br/>**(lowValue, highValue, fromUser) => {}**<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by setting **lowValue** or **highValue** properties). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | Function | **4** |
+| onValueChanged | A callback to be called when value was changed.<br/>**(lowValue, highValue, fromUser) => {}**<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | Function | **4** |
 | rangeEnabled | Slider works as an ordinary slider with 1 control if false | Boolean | **true** |
 | lineWidth | Width of slider's line | Number | **4** |
 | thumbRadius |  Radius of thumb (including border) | Number | **10** |
@@ -80,11 +80,12 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | initialLowValue |  Initial value of lower thumb | Number (integer) | **0** |
 | initialHighValue |  Initial value of higher thumb | Number (integer) | **100** |
 
+If **initialLowValue** ( or **initialHighValue**) is not provided, it's set to **min** (or **max**).
+
 #### Methods
 
-To call methods on slider you need to have a reference to it's instance.
-React native provides 2 ways to do it.
-And after that you can call these methods on that instance.
+To call methods of ```RangeSlider``` you need to have a reference to it's instance.<br/>
+React native provides 2 ways to do it:
 
 ```
 ...
@@ -103,6 +104,8 @@ or
 this._rangeSlider.setLowValue(42);
 ...
 ```
+
+#### Available methos
 
 | Method |      Description      | Params |
 |----------|-----------------------|------|
