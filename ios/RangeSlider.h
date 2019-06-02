@@ -22,6 +22,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) RCTDirectEventBlock onValueChanged;
 @property(nonatomic, weak) id <RangeSliderDelegate> delegate;
 
+@property int activeThumb;
+@property BOOL initialLowValueSet;
+@property BOOL initialHighValueSet;
+
 @property float lineWidth;
 @property float thumbRadius;
 @property float thumbBorderWidth;
@@ -44,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *labelBorderColor;
 @property int min;
 @property int max;
+@property int initialLowValue;
+@property int initialHighValue;
 @property int step;
 @property int lowValue;
 @property int highValue;

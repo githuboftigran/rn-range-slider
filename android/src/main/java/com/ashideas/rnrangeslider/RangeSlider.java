@@ -31,35 +31,6 @@ public class RangeSlider extends View {
     private static final float SQRT_3 = (float) Math.sqrt(3);
     private static final float SQRT_3_2 = SQRT_3 / 2;
 
-    private static final String DEFAULT_SELECTION_COLOR = "#4286f4";
-    private static final String DEFAULT_BLANK_COLOR = "#7fffffff";
-    private static final String DEFAULT_THUMB_COLOR = "#ffffff";
-    private static final String DEFAULT_THUMB_BORDER_COLOR = "#cccccc";
-
-    private static final String DEFAULT_LABEL_BACKGROUND_COLOR = "#ff60ad";
-    private static final String DEFAULT_LABEL_TEXT_COLOR = "#ffffff";
-    private static final String DEFAULT_LABEL_BORDER_COLOR = "#d13e85";
-
-    private static final String DEFAULT_GRAVITY = "top";
-
-    private static final int DEFAULT_MIN = 0;
-    private static final int DEFAULT_MAX = 100;
-    private static final int DEFAULT_STEP = 1;
-
-    private static final float DEFAULT_LINE_WIDTH = 4;
-    private static final float DEFAULT_THUMB_RADIUS = 10;
-    private static final float DEFAULT_THUMB_BORDER_WIDTH = 2;
-
-    private static final String DEFAULT_LABEL_TEXT_FORMAT = "%d";
-    private static final String DEFAULT_LABEL_STYLE = "bubble";
-
-    private static final float DEFAULT_TEXT_SIZE = 16;
-    private static final float DEFAULT_LABEL_GAP = 4;
-    private static final float DEFAULT_LABEL_TAIL_HEIGHT = 8;
-    private static final float DEFAULT_LABEL_PADDING = 4;
-    private static final float DEFAULT_LABEL_BORDER_WIDTH = 2;
-    private static final float DEFAULT_LABEL_BORDER_RADIUS = 4;
-
     private static final int THUMB_LOW = 0;
     private static final int THUMB_HIGH = 1;
     private static final int THUMB_NONE = -1;
@@ -90,6 +61,8 @@ public class RangeSlider extends View {
     private int maxValue;
     private int step;
 
+    private boolean initialLowValueSet;
+    private boolean initialHighValueSet;
     private int lowValue;
     private int highValue;
 
@@ -119,12 +92,12 @@ public class RangeSlider extends View {
         activePointerId = -1;
         activeThumb = THUMB_NONE;
 
-        minValue = DEFAULT_MIN;
-        maxValue = DEFAULT_MAX;
-        lowValue = DEFAULT_MIN;
-        highValue = DEFAULT_MAX;
+        minValue = Integer.MIN_VALUE;
+        maxValue = Integer.MAX_VALUE;
+        lowValue = minValue;
+        highValue = maxValue;
 
-        step = DEFAULT_STEP;
+        step = 1;
 
         labelPath = new Path();
 
@@ -143,30 +116,6 @@ public class RangeSlider extends View {
 
         thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         thumbBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        setRangeEnabled(true);
-        setGravity(DEFAULT_GRAVITY);
-        setLineWidth(DEFAULT_LINE_WIDTH);
-        setThumbRadius(DEFAULT_THUMB_RADIUS);
-        setThumbBorderWidth(DEFAULT_THUMB_BORDER_WIDTH);
-        setTextSize(DEFAULT_TEXT_SIZE);
-        setLabelBorderWidth(DEFAULT_LABEL_BORDER_WIDTH);
-        setLabelPadding(DEFAULT_LABEL_PADDING);
-        setLabelStyle(DEFAULT_LABEL_STYLE);
-        setTextFormat(DEFAULT_LABEL_TEXT_FORMAT);
-
-        setSelectionColor(DEFAULT_SELECTION_COLOR);
-        setBlankColor(DEFAULT_BLANK_COLOR);
-        setThumbColor(DEFAULT_THUMB_COLOR);
-        setThumbBorderColor(DEFAULT_THUMB_BORDER_COLOR);
-
-        setLabelBackgroundColor(DEFAULT_LABEL_BACKGROUND_COLOR);
-        setLabelTextColor(DEFAULT_LABEL_TEXT_COLOR);
-        setLabelBorderColor(DEFAULT_LABEL_BORDER_COLOR);
-
-        setLabelGapHeight(DEFAULT_LABEL_GAP);
-        setLabelBorderRadius(DEFAULT_LABEL_BORDER_RADIUS);
-        setLabelTailHeight(DEFAULT_LABEL_TAIL_HEIGHT);
     }
 
     public void setOnValueChangeListener(OnValueChangeListener onValueChangeListener) {
@@ -294,23 +243,26 @@ public class RangeSlider extends View {
     }
 
     public void setMinValue(int minValue) {
-        this.minValue = minValue >= maxValue ? maxValue - 1 : minValue;
-        if (lowValue < this.minValue) {
-            lowValue = this.minValue;
-            setHighValue(highValue);
+        if (minValue < maxValue) {
+            this.minValue = minValue;
         }
     }
 
     public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue <= minValue ? minValue + 1 : maxValue;
-        if (highValue > this.maxValue) {
-            highValue = this.maxValue;
-            setLowValue(lowValue);
+        if (maxValue > minValue) {
+            this.maxValue = maxValue;
         }
     }
 
     public void setStep(int step) {
         this.step = MathUtils.clamp(step, 1, maxValue);
+    }
+
+    public void setInitialLowValue(int lowValue) {
+        if (!initialLowValueSet) {
+            initialLowValueSet = true;
+            this.setLowValue(lowValue);
+        }
     }
 
     /**
@@ -322,6 +274,13 @@ public class RangeSlider extends View {
         this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - 1);
         checkAndFireValueChangeEvent(oldLow, highValue, false);
         ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    public void setInitialHighValue(int highValue) {
+        if (!initialHighValueSet) {
+            initialHighValueSet = true;
+            this.setHighValue(highValue);
+        }
     }
 
     /**
@@ -406,6 +365,9 @@ public class RangeSlider extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (minValue == Integer.MIN_VALUE || maxValue == Integer.MAX_VALUE) { //Values are not set yet, don't draw anything
+            return;
+        }
         float labelTextHeight = getLabelTextHeight();
         float labelHeight = labelStyle == LabelStyle.NONE ? 0 : 2 * labelBorderWidth + labelTailHeight + labelTextHeight + 2 * labelPadding;
         float labelAndGapHeight = labelStyle == LabelStyle.NONE ? 0 : labelHeight + labelGapHeight;

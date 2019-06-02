@@ -57,6 +57,16 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
         view.setLowValue(value);
     }
 
+    @ReactProp(name = "initialHighValue")
+    public void setInitialHighValue(RangeSlider view, int value) {
+        view.setInitialHighValue(value);
+    }
+
+    @ReactProp(name = "initialLowValue")
+    public void setInitialLowValue(RangeSlider view, int value) {
+        view.setInitialLowValue(value);
+    }
+
     @ReactProp(name = "lineWidth")
     public void setLineWidth(RangeSlider view, float width) {
         view.setLineWidth(width);

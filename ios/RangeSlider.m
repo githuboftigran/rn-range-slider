@@ -3,6 +3,7 @@
 // Copyright (c) 2019 ___FULLUSERNAME___. All rights reserved.
 //
 
+#import <limits.h>
 #import "RangeSlider.h"
 
 #define NONE @"none"
@@ -13,34 +14,6 @@
 #define SQRT_3 (float) sqrt(3)
 #define SQRT_3_2 SQRT_3 / 2
 #define CLAMP(x, min, max) (x < min ? min : x > max ? max : x)
-
-const NSString *DEFAULT_SELECTION_COLOR = @"#4286f4";
-const NSString *DEFAULT_BLANK_COLOR = @"#7fffffff";
-const NSString *DEFAULT_THUMB_COLOR = @"#ffffff";
-const NSString *DEFAULT_THUMB_BORDER_COLOR = @"#cccccc";
-
-const NSString *DEFAULT_LABEL_BACKGROUND_COLOR = @"#ff60ad";
-const NSString *DEFAULT_LABEL_TEXT_COLOR = @"#ffffff";
-const NSString *DEFAULT_LABEL_BORDER_COLOR = @"#d13e85";
-
-const int DEFAULT_MIN = 0;
-const int DEFAULT_MAX = 100;
-const int DEFAULT_STEP = 1;
-
-const float DEFAULT_LINE_WIDTH = 4;
-const float DEFAULT_THUMB_RADIUS = 10;
-const float DEFAULT_THUMB_BORDER_WIDTH = 2;
-
-const NSString *DEFAULT_LABEL_TEXT_FORMAT = @"%d";
-const NSString *DEFAULT_LABEL_STYLE = @"bubble";
-const NSString *DEFAULT_GRAVITY = @"top";
-
-const float DEFAULT_TEXT_SIZE = 16;
-const float DEFAULT_LABEL_GAP = 4;
-const float DEFAULT_LABEL_TAIL_HEIGHT = 8;
-const float DEFAULT_LABEL_PADDING = 4;
-const float DEFAULT_LABEL_BORDER_WIDTH = 2;
-const float DEFAULT_LABEL_BORDER_RADIUS = 4;
 
 const int THUMB_LOW = 0;
 const int THUMB_HIGH = 1;
@@ -58,11 +31,11 @@ const int THUMB_NONE = -1;
             green = [self colorComponentFrom:colorString start:1 length:1];
             blue = [self colorComponentFrom:colorString start:2 length:1];
             break;
-        case 4: // #ARGB
-            alpha = [self colorComponentFrom:colorString start:0 length:1];
-            red = [self colorComponentFrom:colorString start:1 length:1];
-            green = [self colorComponentFrom:colorString start:2 length:1];
-            blue = [self colorComponentFrom:colorString start:3 length:1];
+        case 4: // #RGBA
+            red = [self colorComponentFrom:colorString start:0 length:1];
+            green = [self colorComponentFrom:colorString start:1 length:1];
+            blue = [self colorComponentFrom:colorString start:2 length:1];
+            alpha = [self colorComponentFrom:colorString start:3 length:1];
             break;
         case 6: // #RRGGBB
             alpha = 1.0f;
@@ -70,11 +43,11 @@ const int THUMB_NONE = -1;
             green = [self colorComponentFrom:colorString start:2 length:2];
             blue = [self colorComponentFrom:colorString start:4 length:2];
             break;
-        case 8: // #AARRGGBB
-            alpha = [self colorComponentFrom:colorString start:0 length:2];
-            red = [self colorComponentFrom:colorString start:2 length:2];
-            green = [self colorComponentFrom:colorString start:4 length:2];
-            blue = [self colorComponentFrom:colorString start:6 length:2];
+        case 8: // #RRGGBBAA
+            red = [self colorComponentFrom:colorString start:0 length:2];
+            green = [self colorComponentFrom:colorString start:2 length:2];
+            blue = [self colorComponentFrom:colorString start:4 length:2];
+            alpha = [self colorComponentFrom:colorString start:6 length:2];
             break;
         default:
             [NSException raise:@"Invalid color value" format:@"Color value %@ is invalid.  It should be a hex value of the form #RBG, #ARGB, #RRGGBB, or #AARRGGBB", hexString];
@@ -91,7 +64,6 @@ const int THUMB_NONE = -1;
     return hexComponent / 255.0;
 }
 
-int activeThumb;
 UITouch *activeTouch;
 UIFont *labelFont;
 
@@ -99,33 +71,15 @@ UIFont *labelFont;
     self = [super initWithFrame:frame];
     if (self) {
         [self setBackgroundColor:[UIColor clearColor]];
-        activeThumb = THUMB_NONE;
-        _min = DEFAULT_MIN;
-        _max = DEFAULT_MAX;
-        _lowValue = DEFAULT_MIN;
-        _highValue = DEFAULT_MAX;
-        _step = DEFAULT_STEP;
-        _rangeEnabled = true;
-        _lineWidth = DEFAULT_LINE_WIDTH;
-        _thumbRadius = DEFAULT_THUMB_RADIUS;
-        _thumbBorderWidth = DEFAULT_THUMB_BORDER_WIDTH;
-        [self setTextSize:DEFAULT_TEXT_SIZE];
-        _labelBorderWidth = DEFAULT_LABEL_BORDER_WIDTH;
-        _labelPadding = DEFAULT_LABEL_PADDING;
-        _labelStyle = DEFAULT_LABEL_STYLE;
-        _gravity = DEFAULT_GRAVITY;
-        _textFormat = DEFAULT_LABEL_TEXT_FORMAT;
-        [self setSelectionColor:DEFAULT_SELECTION_COLOR];
-        [self setBlankColor:DEFAULT_BLANK_COLOR];
-        [self setThumbColor:DEFAULT_THUMB_COLOR];
-        [self setThumbBorderColor:DEFAULT_THUMB_BORDER_COLOR];
-        [self setLabelBackgroundColor:DEFAULT_LABEL_BACKGROUND_COLOR];
-        [self setLabelTextColor:DEFAULT_LABEL_TEXT_COLOR];
-        [self setLabelBorderColor:DEFAULT_LABEL_BORDER_COLOR];
-
-        _labelGapHeight = DEFAULT_LABEL_GAP;
-        _labelBorderRadius = DEFAULT_LABEL_BORDER_RADIUS;
-        _labelTailHeight = DEFAULT_LABEL_TAIL_HEIGHT;
+        _activeThumb = THUMB_NONE;
+        _min = INT_MIN;
+        _max = INT_MAX;
+        _lowValue = _min;
+        _highValue = _max;
+        _initialLowValueSet = false;
+        _initialHighValueSet = false;
+        labelFont = [UIFont systemFontOfSize:14];
+        _step = 1;
     }
     return self;
 }
@@ -246,18 +200,21 @@ UIFont *labelFont;
 }
 
 - (void)setMin:(int)min {
-    _min = min >= _max ? _max - 1 : min;
-    if (_lowValue < _min) {
-        _lowValue = _min;
-        [self setHighValue: _highValue];
+    if (min < _max) {
+        _min = min;
     }
 }
 
 - (void)setMax:(int)max {
-    _max = max <= _min ? _min + 1 : max;
-    if (_highValue > _max) {
-        _highValue = _max;
-        [self setLowValue: _lowValue];
+    if (max > _min) {
+        _max = max;
+    }
+}
+
+- (void)setInitialLowValue:(int)lowValue {
+    if (!_initialLowValueSet) {
+        _initialLowValueSet = true;
+        [self setLowValue:lowValue];
     }
 }
 
@@ -268,6 +225,13 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
+- (void)setInitialHighValue:(int)highValue {
+    if (!_initialHighValueSet) {
+        _initialHighValueSet = true;
+        [self setHighValue:highValue];
+    }
+}
+
 - (void)setHighValue:(int)highValue {
     int oldHigh = _highValue;
     _highValue = CLAMP(highValue, _lowValue + 1, _max);
@@ -276,7 +240,7 @@ UIFont *labelFont;
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-    if (activeTouch != nil) {
+    if (activeTouch != nil || _min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
         return;
     }
 
@@ -287,10 +251,10 @@ UIFont *labelFont;
 
     int pointerValue = [self getValueForPosition];
     if (!_rangeEnabled || ABS(pointerValue - _lowValue) < ABS(pointerValue - _highValue)) {
-        activeThumb = THUMB_LOW;
+        _activeThumb = THUMB_LOW;
         _lowValue = pointerValue;
     } else {
-        activeThumb = THUMB_HIGH;
+        _activeThumb = THUMB_HIGH;
         _highValue = pointerValue;
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
@@ -298,14 +262,17 @@ UIFont *labelFont;
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
+    if (_min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
+        return;
+    }
     int oldLow = _lowValue;
     int oldHigh = _highValue;
     int pointerValue = [self getValueForPosition];
     if (!_rangeEnabled) {
         _lowValue = pointerValue;
-    } else if (activeThumb == THUMB_LOW) {
+    } else if (_activeThumb == THUMB_LOW) {
         _lowValue = CLAMP(pointerValue, _min, _highValue - 1);
-    } else if (activeThumb == THUMB_HIGH) {
+    } else if (_activeThumb == THUMB_HIGH) {
         _highValue = CLAMP(pointerValue, _lowValue + 1, _max);
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
@@ -314,13 +281,13 @@ UIFont *labelFont;
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     activeTouch = nil;
-    activeThumb = THUMB_NONE;
+    _activeThumb = THUMB_NONE;
     [self setNeedsDisplay];
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     activeTouch = nil;
-    activeThumb = THUMB_NONE;
+    _activeThumb = THUMB_NONE;
     [self setNeedsDisplay];
 }
 
@@ -348,7 +315,9 @@ UIFont *labelFont;
 }
 
 - (void)drawRect:(CGRect)rect {
-
+    if (_min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
+        return;
+    }
     UIColor *blankColor = [RangeSlider colorWithHexString:_blankColor];
     UIColor *selectionColor = [RangeSlider colorWithHexString:_selectionColor];
     UIColor *thumbColor = [RangeSlider colorWithHexString:_thumbColor];
@@ -422,15 +391,15 @@ UIFont *labelFont;
         }
     }
 
-    if ([_labelStyle isEqualToString:NONE] || activeThumb == THUMB_NONE) {
+    if ([_labelStyle isEqualToString:NONE] || _activeThumb == THUMB_NONE) {
         return;
     }
 
-    NSString *text = [self formatLabelText:activeThumb == THUMB_LOW ? _lowValue : _highValue];
+    NSString *text = [self formatLabelText:_activeThumb == THUMB_LOW ? _lowValue : _highValue];
     textRect = [text boundingRectWithSize:CGSizeMake(500, 500) options:NSStringDrawingUsesLineFragmentOrigin attributes:labelTextAttributes context:nil];
     CGFloat labelTextWidth = textRect.size.width;
     CGFloat labelWidth = labelTextWidth + 2 * _labelPadding + 2 * _labelBorderWidth;
-    CGFloat cx = activeThumb == THUMB_LOW ? lowX : highX;
+    CGFloat cx = _activeThumb == THUMB_LOW ? lowX : highX;
 
     if (labelWidth < _labelTailHeight / SQRT_3_2) {
         labelWidth = _labelTailHeight / SQRT_3_2;
