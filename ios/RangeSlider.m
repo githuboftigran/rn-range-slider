@@ -152,13 +152,13 @@ UIFont *labelFont;
     _rangeEnabled = rangeEnabled;
     if (rangeEnabled) {
         if (_highValue <= _lowValue) {
-            _highValue = _lowValue + 1;
+            _highValue = _lowValue + _step;
         }
         if (_highValue > _max) {
             _highValue = _max;
         }
         if (_lowValue >= _highValue) {
-            _lowValue = _highValue - 1;
+            _lowValue = _highValue - _step;
         }
     }
     [self setNeedsDisplay];
@@ -202,13 +202,25 @@ UIFont *labelFont;
 - (void)setMin:(int)min {
     if (min < _max) {
         _min = min;
+        [self fitToMinMax];
     }
+    [self setNeedsDisplay];
 }
 
 - (void)setMax:(int)max {
     if (max > _min) {
         _max = max;
+        [self fitToMinMax];
     }
+    [self setNeedsDisplay];
+}
+
+- (void)fitToMinMax {
+    int oldLow = _lowValue;
+    int oldHigh = _highValue;
+    _lowValue = CLAMP(_lowValue, _min, _max - _step);
+    _highValue = CLAMP(_highValue, _min + _step, _max);
+    [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:false];
 }
 
 - (void)setInitialLowValue:(int)lowValue {
@@ -220,7 +232,7 @@ UIFont *labelFont;
 
 - (void)setLowValue:(int)lowValue {
     int oldLow = _lowValue;
-    _lowValue = CLAMP(lowValue, _min, _highValue - 1);
+    _lowValue = CLAMP(lowValue, _min, _highValue - _step);
     [self checkAndFireValueChangeEvent:oldLow oldHigh:_highValue fromUser:false];
     [self setNeedsDisplay];
 }
@@ -234,7 +246,7 @@ UIFont *labelFont;
 
 - (void)setHighValue:(int)highValue {
     int oldHigh = _highValue;
-    _highValue = CLAMP(highValue, _lowValue + 1, _max);
+    _highValue = CLAMP(highValue, _lowValue + _step, _max);
     [self checkAndFireValueChangeEvent:_lowValue oldHigh:oldHigh fromUser:false];
     [self setNeedsDisplay];
 }
@@ -271,9 +283,9 @@ UIFont *labelFont;
     if (!_rangeEnabled) {
         _lowValue = pointerValue;
     } else if (_activeThumb == THUMB_LOW) {
-        _lowValue = CLAMP(pointerValue, _min, _highValue - 1);
+        _lowValue = CLAMP(pointerValue, _min, _highValue - _step);
     } else if (_activeThumb == THUMB_HIGH) {
-        _highValue = CLAMP(pointerValue, _lowValue + 1, _max);
+        _highValue = CLAMP(pointerValue, _lowValue + _step, _max);
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
     [self setNeedsDisplay];
@@ -307,7 +319,7 @@ UIFont *labelFont;
 }
 
 - (void)checkAndFireValueChangeEvent:(int)oldLow oldHigh:(int)oldHigh fromUser:(BOOL)fromUser {
-    if(!_delegate || (oldLow == _lowValue && oldHigh == _highValue)) {
+    if(!_delegate || (oldLow == _lowValue && oldHigh == _highValue) || _min == INT_MIN || _max == INT_MAX) {
         return;
     }
 

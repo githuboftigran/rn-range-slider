@@ -190,13 +190,13 @@ public class RangeSlider extends View {
         this.rangeEnabled = rangeEnabled;
         if (rangeEnabled) {
             if (highValue <= lowValue) {
-                highValue = lowValue + 1;
+                highValue = lowValue + step;
             }
             if (highValue > maxValue) {
                 highValue = maxValue;
             }
             if (lowValue >= highValue) {
-                lowValue = highValue - 1;
+                lowValue = highValue - step;
             }
         }
         ViewCompat.postInvalidateOnAnimation(this);
@@ -245,13 +245,25 @@ public class RangeSlider extends View {
     public void setMinValue(int minValue) {
         if (minValue < maxValue) {
             this.minValue = minValue;
+            fitToMinMax();
         }
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setMaxValue(int maxValue) {
         if (maxValue > minValue) {
             this.maxValue = maxValue;
+            fitToMinMax();
         }
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    private void fitToMinMax() {
+        int oldLow = lowValue;
+        int oldHigh = highValue;
+        lowValue = MathUtils.clamp(lowValue, minValue, maxValue - step);
+        highValue = MathUtils.clamp(highValue, minValue + step, maxValue);
+        checkAndFireValueChangeEvent(oldLow, oldHigh, false);
     }
 
     public void setStep(int step) {
@@ -271,7 +283,7 @@ public class RangeSlider extends View {
      */
     public void setLowValue(int lowValue) {
         int oldLow = this.lowValue;
-        this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - 1);
+        this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - step);
         checkAndFireValueChangeEvent(oldLow, highValue, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -289,7 +301,7 @@ public class RangeSlider extends View {
      */
     public void setHighValue(int highValue) {
         int oldHigh = this.highValue;
-        this.highValue = MathUtils.clamp(highValue, lowValue + 1, maxValue);
+        this.highValue = MathUtils.clamp(highValue, lowValue + step, maxValue);
         checkAndFireValueChangeEvent(lowValue, oldHigh, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -321,7 +333,11 @@ public class RangeSlider extends View {
     }
 
     private void checkAndFireValueChangeEvent(int oldLow, int oldHigh, boolean fromUser) {
-        if (onValueChangeListener == null || (oldLow == lowValue && oldHigh == highValue)) {
+        if (onValueChangeListener == null ||
+            (oldLow == lowValue && oldHigh == highValue) ||
+            minValue == Integer.MIN_VALUE ||
+            maxValue == Integer.MAX_VALUE) {
+
             return;
         }
 
@@ -342,9 +358,9 @@ public class RangeSlider extends View {
         if (!rangeEnabled) {
             lowValue = pointerValue;
         } else if (activeThumb == THUMB_LOW) {
-            lowValue = MathUtils.clamp(pointerValue, minValue, highValue - 1);
+            lowValue = MathUtils.clamp(pointerValue, minValue, highValue - step);
         } else if (activeThumb == THUMB_HIGH) {
-            highValue = MathUtils.clamp(pointerValue, lowValue + 1, maxValue);
+            highValue = MathUtils.clamp(pointerValue, lowValue + step, maxValue);
         }
     }
 
