@@ -208,37 +208,37 @@ public class RangeSlider extends View {
     }
 
     public void setSelectionColor(String color) {
-        selectionPaint.setColor(Uitls.parseRgba(color));
+        selectionPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setBlankColor(String color) {
-        blankPaint.setColor(Uitls.parseRgba(color));
+        blankPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setThumbColor(String color) {
-        thumbPaint.setColor(Uitls.parseRgba(color));
+        thumbPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setThumbBorderColor(String color) {
-        thumbBorderPaint.setColor(Uitls.parseRgba(color));
+        thumbBorderPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setLabelBackgroundColor(String color) {
-        labelPaint.setColor(Uitls.parseRgba(color));
+        labelPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setLabelTextColor(String color) {
-        labelTextPaint.setColor(Uitls.parseRgba(color));
+        labelTextPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     public void setLabelBorderColor(String color) {
-        labelBorderPaint.setColor(Uitls.parseRgba(color));
+        labelBorderPaint.setColor(Utils.parseRgba(color));
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
