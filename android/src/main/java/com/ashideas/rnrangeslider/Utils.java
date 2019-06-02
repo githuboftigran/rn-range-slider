@@ -29,7 +29,8 @@ public class Utils {
         }
 
         char[] components = color.substring(1).toCharArray();
-        StringBuilder builder = new StringBuilder('#');
+        StringBuilder builder = new StringBuilder();
+        builder.append('#');
         for (char component : components) {
             builder.append(component).append(component);
         }
