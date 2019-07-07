@@ -232,7 +232,7 @@ UIFont *labelFont;
 
 - (void)setLowValue:(int)lowValue {
     int oldLow = _lowValue;
-    _lowValue = CLAMP(lowValue, _min, _highValue - _step);
+    _lowValue = CLAMP(lowValue, _min, (_rangeEnabled ? _highValue - _step : _max));
     [self checkAndFireValueChangeEvent:oldLow oldHigh:_highValue fromUser:false];
     [self setNeedsDisplay];
 }
@@ -242,6 +242,11 @@ UIFont *labelFont;
         _initialHighValueSet = true;
         [self setHighValue:highValue];
     }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self setNeedsDisplay];
 }
 
 - (void)setHighValue:(int)highValue {

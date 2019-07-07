@@ -2,7 +2,6 @@ package com.ashideas.rnrangeslider;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -279,11 +278,12 @@ public class RangeSlider extends View {
 
     /**
      * This method should never be called because of user's touch.
+     *
      * @param lowValue
      */
     public void setLowValue(int lowValue) {
         int oldLow = this.lowValue;
-        this.lowValue = MathUtils.clamp(lowValue, minValue, highValue - step);
+        this.lowValue = MathUtils.clamp(lowValue, minValue, rangeEnabled ? highValue - step : maxValue);
         checkAndFireValueChangeEvent(oldLow, highValue, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -297,6 +297,7 @@ public class RangeSlider extends View {
 
     /**
      * This method should never be called because of user's touch.
+     *
      * @param highValue
      */
     public void setHighValue(int highValue) {
@@ -334,9 +335,9 @@ public class RangeSlider extends View {
 
     private void checkAndFireValueChangeEvent(int oldLow, int oldHigh, boolean fromUser) {
         if (onValueChangeListener == null ||
-            (oldLow == lowValue && oldHigh == highValue) ||
-            minValue == Integer.MIN_VALUE ||
-            maxValue == Integer.MAX_VALUE) {
+                (oldLow == lowValue && oldHigh == highValue) ||
+                minValue == Integer.MIN_VALUE ||
+                maxValue == Integer.MAX_VALUE) {
 
             return;
         }
@@ -393,7 +394,7 @@ public class RangeSlider extends View {
         if (height > drawingHeight) {
             if (gravity == Gravity.BOTTOM) {
                 canvas.translate(0, height - drawingHeight);
-            } else if(gravity == Gravity.CENTER) {
+            } else if (gravity == Gravity.CENTER) {
                 canvas.translate(0, (height - drawingHeight) / 2);
             }
         }
@@ -506,6 +507,7 @@ public class RangeSlider extends View {
     /**
      * This method formats label text for selected value.
      * Change this method if you need more complex formatting.
+     *
      * @param value
      * @return formatted text
      */
