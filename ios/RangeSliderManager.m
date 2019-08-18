@@ -21,6 +21,8 @@ RCT_EXPORT_MODULE()
 }
 
 RCT_EXPORT_VIEW_PROPERTY(onValueChanged, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onSliderTouchStart, RCTDirectEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onSliderTouchEnd, RCTDirectEventBlock)
 
 RCT_EXPORT_VIEW_PROPERTY(lineWidth, float)
 RCT_EXPORT_VIEW_PROPERTY(thumbRadius, float)
@@ -60,6 +62,14 @@ RCT_EXPORT_VIEW_PROPERTY(highValue, int)
         @"fromUser": @(fromUser)
 
     });
+}
+
+- (void)rangeSliderTouchStarted:(RangeSlider *)slider {
+    slider.onSliderTouchStart(@{});
+}
+
+- (void)rangeSliderTouchEnded:(RangeSlider *)slider {
+    slider.onSliderTouchEnd(@{});
 }
 
 @end

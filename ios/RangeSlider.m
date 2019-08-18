@@ -275,6 +275,7 @@ UIFont *labelFont;
         _highValue = pointerValue;
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
+    [_delegate rangeSliderTouchStarted:self];
     [self setNeedsDisplay];
 }
 
@@ -299,12 +300,14 @@ UIFont *labelFont;
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     activeTouch = nil;
     _activeThumb = THUMB_NONE;
+    [_delegate rangeSliderTouchEnded:self];
     [self setNeedsDisplay];
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
     activeTouch = nil;
     _activeThumb = THUMB_NONE;
+    [_delegate rangeSliderTouchEnded:self];
     [self setNeedsDisplay];
 }
 

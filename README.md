@@ -10,16 +10,18 @@ A fully customizable high quality react native Slider component backed by custom
 </p>
 
 ## Installation
+
 1. Add
 
    * npm: `npm install --save rn-range-slider`
    * yarn: `yarn add rn-range-slider`
 
+##### For older React native versions ( < 0.60) you need to link the library 
+
 2. Link
    - Run `react-native link  rn-range-slider`
    - If linking fails, follow the
      [manual linking steps](https://facebook.github.io/react-native/docs/linking-libraries-ios.html#manual-linking)
-
 
 ## Usage
 
@@ -118,6 +120,10 @@ this._rangeSlider.setLowValue(42);
 | Name |      Description    | Params |
 |----------|---------------------|--------|
 | onValueChanged | A callback to be called when value was changed.<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | lowValue: number<br/><br/>highValue: number<br/><br/>fromUser: boolean |
+| onTouchStart | Nothing to explain I think :) | - |
+| onTouchEnd | Nothing to explain here too | - |
+
 
 ## Known issues
 * Label's corner radius is not working on iOS
+* Problems with integration of react-native 0.60+

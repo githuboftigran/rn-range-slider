@@ -2,20 +2,25 @@ import React, {PureComponent} from 'react';
 import {requireNativeComponent} from 'react-native';
 import PropTypes from 'prop-types'
 
+const noop = () => {}
+
 const NativeRangeSlider = requireNativeComponent('RangeSlider');
 
 class RangeSlider extends PureComponent {
-    constructor(props) {
-        super(props);
-        this._unboxEvent = this._unboxEvent.bind(this);
+
+    _handleValueChange = ({nativeEvent}) => {
+        const { onValueChanged } = this.props
+        onValueChanged && onValueChanged(nativeEvent.lowValue, nativeEvent.highValue, nativeEvent.fromUser);
     }
 
-    _unboxEvent(event: Event) {
-        if (!this.props.onValueChanged) {
-            return;
-        }
-        const ne = event.nativeEvent;
-        this.props.onValueChanged(ne.lowValue, ne.highValue, ne.fromUser);
+    _handleTouchStart = ({nativeEvent}) => {
+        const { onTouchStart } = this.props;
+        onTouchStart && onTouchStart();
+    }
+
+    _handleTouchEnd = ({nativeEvent}) => {
+        const { onTouchEnd } = this.props;
+        onTouchEnd && onTouchEnd();
     }
 
     render() {
@@ -28,9 +33,11 @@ class RangeSlider extends PureComponent {
         }
         const sliderProps = {...this.props, initialLowValue, initialHighValue};
         return <NativeRangeSlider
-            {...sliderProps}
-            ref={component => this._slider = component}
-            onValueChanged={this._unboxEvent}
+        {...sliderProps}
+        ref={component => this._slider = component}
+        onValueChanged={this._handleValueChange}
+        onTouchStart={this._handleTouchStart}
+        onTouchEnd={this._handleTouchEnd}
         />
     }
 
@@ -69,6 +76,9 @@ RangeSlider.propTypes = {
     labelTextColor: PropTypes.string,
     labelBackgroundColor: PropTypes.string,
     labelBorderColor: PropTypes.string,
+    onTouchStart: PropTypes.func,
+    onTouchEnd: PropTypes.func,
+    onValueChanged: PropTypes.func,
 }
 
 RangeSlider.defaultProps = {
@@ -95,6 +105,9 @@ RangeSlider.defaultProps = {
     labelTextColor: '#ffffff',
     labelBackgroundColor: '#ff60ad',
     labelBorderColor: '#d13e85',
+    onTouchStart: noop,
+    onTouchEnd: noop,
+    onValueChanged: noop,
 }
 
 export default RangeSlider

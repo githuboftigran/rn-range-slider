@@ -15,6 +15,8 @@ import javax.annotation.Nullable;
 public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
 
     private static final String ON_VALUE_CHANGED_EVENT_NAME = "onValueChanged";
+    private static final String ON_TOUCH_START_EVENT_NAME = "onSliderTouchStart";
+    private static final String ON_TOUCH_END_EVENT_NAME = "onSliderTouchEnd";
     private static final String REACT_CLASS = "RangeSlider";
 
     @Override
@@ -173,12 +175,28 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
             }
         });
 
+        slider.setOnSliderTouchListener(new RangeSlider.OnSliderTouchListener() {
+            @Override
+            public void onTouchStart() {
+                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(slider.getId(), ON_TOUCH_START_EVENT_NAME, Arguments.createMap());
+            }
+
+            @Override
+            public void onTouchEnd() {
+                reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(slider.getId(), ON_TOUCH_END_EVENT_NAME, Arguments.createMap());
+            }
+        });
+
         return slider;
     }
 
     @Nullable
     @Override
     public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
-        return MapBuilder.<String, Object>builder().put(ON_VALUE_CHANGED_EVENT_NAME, MapBuilder.of("registrationName", ON_VALUE_CHANGED_EVENT_NAME)).build();
+        return MapBuilder.<String, Object>builder()
+                .put(ON_VALUE_CHANGED_EVENT_NAME, MapBuilder.of("registrationName", ON_VALUE_CHANGED_EVENT_NAME))
+                .put(ON_TOUCH_START_EVENT_NAME, MapBuilder.of("registrationName", ON_TOUCH_START_EVENT_NAME))
+                .put(ON_TOUCH_END_EVENT_NAME, MapBuilder.of("registrationName", ON_TOUCH_END_EVENT_NAME))
+                .build();
     }
 }

@@ -35,6 +35,7 @@ public class RangeSlider extends View {
     private static final int THUMB_NONE = -1;
 
     private OnValueChangeListener onValueChangeListener;
+    private OnSliderTouchListener onSliderTouchListener;
 
     private Paint selectionPaint;
     private Paint blankPaint;
@@ -119,6 +120,10 @@ public class RangeSlider extends View {
 
     public void setOnValueChangeListener(OnValueChangeListener onValueChangeListener) {
         this.onValueChangeListener = onValueChangeListener;
+    }
+
+    public void setOnSliderTouchListener(OnSliderTouchListener onSliderTouchListener) {
+        this.onSliderTouchListener = onSliderTouchListener;
     }
 
     public void setLineWidth(float lineWidth) {
@@ -318,6 +323,9 @@ public class RangeSlider extends View {
             case MotionEvent.ACTION_DOWN:
                 activePointerId = event.getPointerId(actionIndex);
                 handleTouchDown(getValueForPosition(event.getX()));
+                if (onSliderTouchListener != null) {
+                    onSliderTouchListener.onTouchStart();
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 int pointerValue = getValueForPosition(event.getX(event.findPointerIndex(activePointerId)));
@@ -326,6 +334,9 @@ public class RangeSlider extends View {
             case MotionEvent.ACTION_UP:
                 activePointerId = -1;
                 activeThumb = THUMB_NONE;
+                if (onSliderTouchListener != null) {
+                    onSliderTouchListener.onTouchEnd();
+                }
                 break;
         }
         ViewCompat.postInvalidateOnAnimation(this);
@@ -517,5 +528,10 @@ public class RangeSlider extends View {
 
     public interface OnValueChangeListener {
         void onValueChanged(int lowValue, int highValue, boolean fromUser);
+    }
+
+    public interface OnSliderTouchListener {
+        void onTouchStart();
+        void onTouchEnd();
     }
 }

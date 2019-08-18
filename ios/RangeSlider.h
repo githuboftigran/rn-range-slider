@@ -12,6 +12,8 @@
 @protocol RangeSliderDelegate <NSObject>
 
 - (void)rangeSliderValueWasChanged:(RangeSlider *)slider fromUser:(BOOL)fromUser;
+- (void)rangeSliderTouchStarted:(RangeSlider *)slider;
+- (void)rangeSliderTouchEnded:(RangeSlider *)slider;
 
 @end
 
@@ -20,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface RangeSlider : UIControl
 
 @property(nonatomic, copy) RCTDirectEventBlock onValueChanged;
+@property(nonatomic, copy) RCTDirectEventBlock onSliderTouchStart;
+@property(nonatomic, copy) RCTDirectEventBlock onSliderTouchEnd;
 @property(nonatomic, weak) id <RangeSliderDelegate> delegate;
 
 @property int activeThumb;
