@@ -36,8 +36,8 @@ class RangeSlider extends PureComponent {
         {...sliderProps}
         ref={component => this._slider = component}
         onValueChanged={this._handleValueChange}
-        onTouchStart={this._handleTouchStart}
-        onTouchEnd={this._handleTouchEnd}
+        onSliderTouchStart={this._handleTouchStart}
+        onSliderTouchEnd={this._handleTouchEnd}
         />
     }
 
