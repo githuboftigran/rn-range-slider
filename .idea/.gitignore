@@ -1,3 +1,8 @@
 # Default ignored files
 /workspace.xml
 /.idea/*
+/encodings.xml
+/misc.xml
+/modules.xml
+/rn-range-slider.iml
+/vcs.xml
