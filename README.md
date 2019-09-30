@@ -16,12 +16,17 @@ A fully customizable high quality react native Slider component backed by custom
    * npm: `npm install --save rn-range-slider`
    * yarn: `yarn add rn-range-slider`
 
-##### For older React native versions ( < 0.60) you need to link the library 
+2. Linking
 
-2. Link
+##### For older React native versions ( < 0.60 ) you need to link the library: 
+
    - Run `react-native link  rn-range-slider`
    - If linking fails, follow the
      [manual linking steps](https://facebook.github.io/react-native/docs/linking-libraries-ios.html#manual-linking)
+
+##### For newer React native versions ( >= 0.60 ) you need to install pods for iOS:
+   - cd ios && pod install && cd ..
+   - For android everything works out of the box
 
 ## Usage
 
