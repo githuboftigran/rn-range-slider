@@ -60,7 +60,9 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 
 | Name |      Description      | Type | Default Value |
 |----------|-----------------------|------|:-------------:|
+| disabled | If true user won't be able to move the slider | Boolean | **false** |
 | rangeEnabled | Slider works as an ordinary slider with 1 control if false | Boolean | **true** |
+| valueType | Type of slider values | String<br/><br/>Currently supported values:<br/>- **number**<br/>- **time** | **number** |
 | lineWidth | Width of slider's line | Number | **4** |
 | thumbRadius |  Radius of thumb (including border) | Number | **10** |
 | thumbBorderWidth |  Border width of thumb | Number | **2** |
@@ -70,7 +72,7 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | labelBorderRadius |  Border radius of label bubble | Number | **4** |
 | labelTailHeight | Height of label bubble's tail | Number | **8** |
 | labelGapHeight |  Gap between label and slider | Number | **4** |
-| textFormat |  This string will be formatted with active value and shown in thumb | String<br/>**"Price: %d**" =><br/>"**Price: 75**"<br/>if the current value is 75 | **%d**<br/> (just the number) |
+| textFormat |  This string will be formatted with active value and shown in thumb.<br/>If `valueType` is set to **time** this prop will be considered as date formatter.<br/>Since this library uses native components and everything is rendered in native end, time will be formatted by [`NSDateFormatter`](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/DataFormatting/Articles/dfDateFormatting10_4.html) for iOS and [`SimpleDateFormat`](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html) for Android, so make sure you are passing valid format for both platforms. | String<br/>**"Price: %d**" =><br/>"**Price: 75**"<br/>if the current value is 75 | **%d**<br/> (just the number) |
 | labelStyle |  Style of the label.<br/>Label is not shown if **none** | String<br/><br/>Currently supported values:<br/>- **none**<br/>- **bubble** | **bubble** |
 | gravity | Vertical gravity of drawn content | String<br/><br/>Currently supported values:<br/>- **top**<br/>- **bottom**<br/>- **center** | **top** |
 | selectionColor |  Color of selected part | String | **#4286f4** |
@@ -80,11 +82,18 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | labelBackgroundColor |  Color label's background | String | **#ff60ad** |
 | labelBorderColor |  Color label's border | String | **#d13e85** |
 | labelTextColor |  Color label's text | String | **#ffffff** |
-| min |  Minimum value of slider | Number (integer) | **0** |
-| max |  Maximum value of slider | Number (integer) | **100** |
-| step |  Step of slider | Number (integer) | **1** |
-| initialLowValue |  Initial value of lower thumb | Number (integer) | **0** |
-| initialHighValue |  Initial value of higher thumb | Number (integer) | **100** |
+| step |  Step of slider. If `valueType` is set to **time**, this prop wil considered as milliseconds. | Number | **1** |
+
+Props below may have different types depending on `valueType` prop.<br/>
+If `valueType` is set to **number**, these props should be `Number`s (integer).<br/>
+If `valueType` is set to **time**, these props may be `Number` (integer) or `Date` and if a `Number` is passed the value will be considered as timestamp.
+
+| Name |      Description      | Type | Default Value |
+|----------|-----------------------|------|:-------------:|
+| min |  Minimum value of slider | Depends on `valueType` | **0** |
+| max |  Maximum value of slider | Depends on `valueType` | **100** |
+| initialLowValue |  Initial value of lower thumb | Depends on `valueType` | **0** |
+| initialHighValue |  Initial value of higher thumb | Depends on `valueType` | **100** |
 
 <br/>
 
@@ -113,18 +122,18 @@ this._rangeSlider.setLowValue(42);
 ...
 ```
 
-#### Available methos
+#### Available methods
 
 | Name |      Description      | Params |
 |---|---|---|
-| setLowValue | Set low value of slider | value: number |
-| setHighValue | Set high value of slider | value: number |
+| setLowValue | Set low value of slider | value: `Number` (or Date, if `valueType` is set to **time**) |
+| setHighValue | Set high value of slider | value: `Number` (or Date, if `valueType` is set to **time**) |
 
 ### Callbacks
 
 | Name |      Description    | Params |
 |----------|---------------------|--------|
-| onValueChanged | A callback to be called when value was changed.<br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | lowValue: number<br/><br/>highValue: number<br/><br/>fromUser: boolean |
+| onValueChanged | A callback to be called when value was changed.<br/><br/>Type of **lowValue** and **highValue** will be `Number` if `valueType` is **number** and `Date` if `valueType` is **time**<br/><br/>**fromUser** parameter is true if the value was changed because of user's interaction (not by calling **setLowValue** or **setHighValue** methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | lowValue: number<br/><br/>highValue: number<br/><br/>fromUser: boolean |
 | onTouchStart | Nothing to explain I think :) | - |
 | onTouchEnd | Nothing to explain here too | - |
 

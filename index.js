@@ -6,11 +6,18 @@ const noop = () => {}
 
 const NativeRangeSlider = requireNativeComponent('RangeSlider');
 
+const dateToTimeStamp = date => date instanceof Date ? date.getTime() : date;
+
 class RangeSlider extends PureComponent {
 
     _handleValueChange = ({nativeEvent}) => {
-        const { onValueChanged } = this.props
-        onValueChanged && onValueChanged(nativeEvent.lowValue, nativeEvent.highValue, nativeEvent.fromUser);
+        const { onValueChanged, valueType } = this.props
+        let { lowValue, highValue, fromUser } = nativeEvent;
+        if (valueType === 'time') {
+            lowValue = new Date(lowValue);
+            highValue = new Date(highValue);
+        }
+        onValueChanged && onValueChanged(lowValue, highValue, fromUser);
     }
 
     _handleTouchStart = ({nativeEvent}) => {
@@ -24,14 +31,22 @@ class RangeSlider extends PureComponent {
     }
 
     render() {
-        let { initialHighValue, initialLowValue, min, max } = this.props;
+        let { valueType, initialHighValue, initialLowValue, min, max } = this.props;
         if (initialLowValue === undefined) {
             initialLowValue = min;
         }
         if (initialHighValue === undefined) {
             initialHighValue = max;
         }
-        const sliderProps = {...this.props, initialLowValue, initialHighValue};
+
+        if (valueType === 'time') {
+            initialHighValue = dateToTimeStamp(initialHighValue);
+            initialLowValue = dateToTimeStamp(initialLowValue);
+            min = dateToTimeStamp(min);
+            max = dateToTimeStamp(max);
+        }
+
+        const sliderProps = {...this.props, initialLowValue, initialHighValue, min, max};
         return <NativeRangeSlider
         {...sliderProps}
         ref={component => this._slider = component}
@@ -42,26 +57,41 @@ class RangeSlider extends PureComponent {
     }
 
     setHighValue = value => {
+        const { valueType } = this.props;
+        if (valueType === 'time') {
+            value = dateToTimeStamp(value);
+        }
         this._slider.setNativeProps({ highValue: value });
     }
 
     setLowValue = value => {
+        const { valueType } = this.props;
+        if (valueType === 'time') {
+            value = dateToTimeStamp(value);
+        }
         this._slider.setNativeProps({ lowValue: value });
     }
 }
 
+const numberOrDate = PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.instanceOf(Date),
+]);
+
 RangeSlider.propTypes = {
     rangeEnabled: PropTypes.bool,
-    gravity: PropTypes.string,
-    min: PropTypes.number,
-    max: PropTypes.number,
-    step: PropTypes.number,
-    initialLowValue: PropTypes.number,
-    initialHighValue: PropTypes.number,
+    disabled: PropTypes.bool,
+    valueType: PropTypes.oneOf(['number', 'time']),
+    gravity: PropTypes.oneOf(['top', 'bottom', 'center']),
+    min: numberOrDate,
+    max: numberOrDate,
+    step: numberOrDate,
+    initialLowValue: numberOrDate,
+    initialHighValue: numberOrDate,
     lineWidth: PropTypes.number,
     thumbRadius: PropTypes.number,
     thumbBorderWidth: PropTypes.number,
-    labelStyle: PropTypes.string,
+    labelStyle: PropTypes.oneOf(['none', 'bubble']),
     labelGapHeight: PropTypes.number,
     labelTailHeight: PropTypes.number,
     labelFontSize: PropTypes.number,
@@ -83,6 +113,8 @@ RangeSlider.propTypes = {
 
 RangeSlider.defaultProps = {
     rangeEnabled: true,
+    disabled: false,
+    valueType: 'number',
     gravity: 'top',
     min: 0,
     max: 100,

@@ -1,6 +1,6 @@
 //
 // Created by Tigran Sahakyan on 2019-01-14.
-// Copyright (c) 2019 ___FULLUSERNAME___. All rights reserved.
+// Copyright (c) 2019 tigrans. All rights reserved.
 //
 
 #import <MapKit/MapKit.h>
@@ -36,7 +36,9 @@ RCT_EXPORT_VIEW_PROPERTY(labelGapHeight, float)
 RCT_EXPORT_VIEW_PROPERTY(textFormat, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelStyle, NSString *)
 RCT_EXPORT_VIEW_PROPERTY(gravity, NSString *)
+RCT_EXPORT_VIEW_PROPERTY(disabled, BOOL)
 RCT_EXPORT_VIEW_PROPERTY(rangeEnabled, BOOL)
+RCT_EXPORT_VIEW_PROPERTY(valueType, NSString)
 RCT_EXPORT_VIEW_PROPERTY(selectionColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(blankColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(thumbColor, NSString)
@@ -44,13 +46,13 @@ RCT_EXPORT_VIEW_PROPERTY(thumbBorderColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelBackgroundColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelTextColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelBorderColor, NSString)
-RCT_EXPORT_VIEW_PROPERTY(min, int)
-RCT_EXPORT_VIEW_PROPERTY(max, int)
-RCT_EXPORT_VIEW_PROPERTY(initialLowValue, int)
-RCT_EXPORT_VIEW_PROPERTY(initialHighValue, int)
-RCT_EXPORT_VIEW_PROPERTY(step, int)
-RCT_EXPORT_VIEW_PROPERTY(lowValue, int)
-RCT_EXPORT_VIEW_PROPERTY(highValue, int)
+RCT_EXPORT_VIEW_PROPERTY(min, double)
+RCT_EXPORT_VIEW_PROPERTY(max, double)
+RCT_EXPORT_VIEW_PROPERTY(initialLowValue, double)
+RCT_EXPORT_VIEW_PROPERTY(initialHighValue, double)
+RCT_EXPORT_VIEW_PROPERTY(step, double)
+RCT_EXPORT_VIEW_PROPERTY(lowValue, double)
+RCT_EXPORT_VIEW_PROPERTY(highValue, double)
 
 #pragma mark RangeSliderDelegate
 

@@ -24,9 +24,19 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
         return REACT_CLASS;
     }
 
+    @ReactProp(name = "disabled")
+    public void setDisabled(RangeSlider view, boolean disabled) {
+        view.setEnabled(!disabled);
+    }
+
     @ReactProp(name = "rangeEnabled")
     public void setRangeEnabled(RangeSlider view, boolean enabled) {
         view.setRangeEnabled(enabled);
+    }
+
+    @ReactProp(name = "valueType")
+    public void setValueType(RangeSlider view, String valueType) {
+        view.setValueType(valueType);
     }
 
     @ReactProp(name = "gravity")
@@ -35,38 +45,38 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
     }
 
     @ReactProp(name = "min")
-    public void setMin(RangeSlider view, int min) {
-        view.setMinValue(min);
+    public void setMin(RangeSlider view, double min) {
+        view.setMinValue((long) min);
     }
 
     @ReactProp(name = "max")
-    public void setMax(RangeSlider view, int max) {
-        view.setMaxValue(max);
+    public void setMax(RangeSlider view, double max) {
+        view.setMaxValue((long) max);
     }
 
     @ReactProp(name = "step")
-    public void setStep(RangeSlider view, int step) {
-        view.setStep(step);
+    public void setStep(RangeSlider view, double step) {
+        view.setStep((long) step);
     }
 
     @ReactProp(name = "highValue")
-    public void setHighValue(RangeSlider view, int value) {
-        view.setHighValue(value);
+    public void setHighValue(RangeSlider view, double value) {
+        view.setHighValue((long) value);
     }
 
     @ReactProp(name = "lowValue")
-    public void setLowValue(RangeSlider view, int value) {
-        view.setLowValue(value);
+    public void setLowValue(RangeSlider view, double value) {
+        view.setLowValue((long) value);
     }
 
     @ReactProp(name = "initialHighValue")
-    public void setInitialHighValue(RangeSlider view, int value) {
-        view.setInitialHighValue(value);
+    public void setInitialHighValue(RangeSlider view, double value) {
+        view.setInitialHighValue((long) value);
     }
 
     @ReactProp(name = "initialLowValue")
-    public void setInitialLowValue(RangeSlider view, int value) {
-        view.setInitialLowValue(value);
+    public void setInitialLowValue(RangeSlider view, double value) {
+        view.setInitialLowValue((long) value);
     }
 
     @ReactProp(name = "lineWidth")
@@ -165,10 +175,10 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
 
         slider.setOnValueChangeListener(new RangeSlider.OnValueChangeListener() {
             @Override
-            public void onValueChanged(int lowValue, int highValue, boolean fromUser) {
+            public void onValueChanged(long lowValue, long highValue, boolean fromUser) {
                 WritableMap event = Arguments.createMap();
-                event.putInt("lowValue", lowValue);
-                event.putInt("highValue", highValue);
+                event.putDouble("lowValue", lowValue);
+                event.putDouble("highValue", highValue);
                 event.putBoolean("fromUser", fromUser);
 
                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(slider.getId(), ON_VALUE_CHANGED_EVENT_NAME, event);

@@ -44,4 +44,13 @@ public class Utils {
     public static float spToPx(Context context, float value) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, context.getResources().getDisplayMetrics());
     }
+
+    public static long clamp(long value, long min, long max) {
+        if (value < min) {
+            return min;
+        } else if (value > max) {
+            return max;
+        }
+        return value;
+    }
 }

@@ -1,6 +1,6 @@
 //
 // Created by Tigran Sahakyan on 2019-01-14.
-// Copyright (c) 2019 ___FULLUSERNAME___. All rights reserved.
+// Copyright (c) 2019 tigrans. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -39,24 +39,26 @@ NS_ASSUME_NONNULL_BEGIN
 @property float labelBorderRadius;
 @property float labelTailHeight;
 @property float labelGapHeight;
-@property NSString *textFormat;
-@property NSString *labelStyle;
-@property NSString *gravity;
+@property (nonatomic) NSString *textFormat;
+@property (nonatomic) NSString *labelStyle;
+@property (nonatomic) NSString *gravity;
+@property BOOL disabled;
 @property BOOL rangeEnabled;
-@property NSString *selectionColor;
-@property NSString *blankColor;
-@property NSString *thumbColor;
-@property NSString *thumbBorderColor;
-@property NSString *labelBackgroundColor;
-@property NSString *labelTextColor;
-@property NSString *labelBorderColor;
-@property int min;
-@property int max;
-@property int initialLowValue;
-@property int initialHighValue;
-@property int step;
-@property int lowValue;
-@property int highValue;
+@property (nonatomic) NSString *valueType;
+@property (nonatomic) NSString *selectionColor;
+@property (nonatomic) NSString *blankColor;
+@property (nonatomic) NSString *thumbColor;
+@property (nonatomic) NSString *thumbBorderColor;
+@property (nonatomic) NSString *labelBackgroundColor;
+@property (nonatomic) NSString *labelTextColor;
+@property (nonatomic) NSString *labelBorderColor;
+@property (nonatomic) long long min;
+@property (nonatomic) long long max;
+@property (nonatomic) long long initialLowValue;
+@property (nonatomic) long long initialHighValue;
+@property (nonatomic) long long step;
+@property (nonatomic) long long lowValue;
+@property (nonatomic) long long highValue;
 
 @end
 

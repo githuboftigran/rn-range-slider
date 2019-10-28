@@ -1,11 +1,13 @@
 //
 // Created by Tigran Sahakyan on 2019-01-14.
-// Copyright (c) 2019 ___FULLUSERNAME___. All rights reserved.
+// Copyright (c) 2019 tigrans. All rights reserved.
 //
 
 #import <limits.h>
 #import "RangeSlider.h"
 
+#define TYPE_NUMBER @"number"
+#define TYPE_TIME @"time"
 #define NONE @"none"
 #define BUBBLE @"bubble"
 #define TOP @"top"
@@ -66,14 +68,16 @@ const int THUMB_NONE = -1;
 
 UITouch *activeTouch;
 UIFont *labelFont;
+NSDateFormatter *dateTimeFormatter;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         [self setBackgroundColor:[UIColor clearColor]];
+        dateTimeFormatter = [[NSDateFormatter alloc] init];
         _activeThumb = THUMB_NONE;
-        _min = INT_MIN;
-        _max = INT_MAX;
+        _min = LONG_MIN;
+        _max = LONG_MAX;
         _lowValue = _min;
         _highValue = _max;
         _initialLowValueSet = false;
@@ -135,6 +139,9 @@ UIFont *labelFont;
 
 - (void)setTextFormat:(NSString *)textFormat {
     _textFormat = textFormat;
+    if ([_valueType isEqualToString:TYPE_TIME]) {
+        [dateTimeFormatter setDateFormat:textFormat];
+    }
     [self setNeedsDisplay];
 }
 
@@ -151,16 +158,28 @@ UIFont *labelFont;
 - (void)setRangeEnabled:(BOOL)rangeEnabled {
     _rangeEnabled = rangeEnabled;
     if (rangeEnabled) {
-        if (_highValue <= _lowValue) {
-            _highValue = _lowValue + _step;
+        if (_highValue < _lowValue) {
+            _highValue = _lowValue;
         }
         if (_highValue > _max) {
             _highValue = _max;
         }
-        if (_lowValue >= _highValue) {
-            _lowValue = _highValue - _step;
+        if (_lowValue > _highValue) {
+            _lowValue = _highValue;
         }
     }
+    [self setNeedsDisplay];
+}
+
+-(void)setValueType:(NSString *)valueType {
+    _valueType = valueType;
+    if ([_valueType isEqualToString:TYPE_TIME]) {
+        [dateTimeFormatter setDateFormat:_textFormat];
+    }
+}
+
+- (void)setDisabled:(BOOL)disabled {
+    _disabled = disabled;
     [self setNeedsDisplay];
 }
 
@@ -199,7 +218,11 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
-- (void)setMin:(int)min {
+- (void)setStep:(double)step {
+    _step = step;
+}
+
+- (void)setMin:(double)min {
     if (min < _max) {
         _min = min;
         [self fitToMinMax];
@@ -207,7 +230,7 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
-- (void)setMax:(int)max {
+- (void)setMax:(double)max {
     if (max > _min) {
         _max = max;
         [self fitToMinMax];
@@ -215,33 +238,41 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
+
 - (void)fitToMinMax {
-    int oldLow = _lowValue;
-    int oldHigh = _highValue;
-    _lowValue = CLAMP(_lowValue, _min, _max - _step);
-    _highValue = CLAMP(_highValue, _min + _step, _max);
+    long long oldLow = _lowValue;
+    long long oldHigh = _highValue;
+    _lowValue = CLAMP(_lowValue, _min, _max);
+    _highValue = CLAMP(_highValue, _min, _max);
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:false];
 }
 
-- (void)setInitialLowValue:(int)lowValue {
+- (void)setInitialLowValue:(double)lowValue {
     if (!_initialLowValueSet) {
         _initialLowValueSet = true;
         [self setLowValue:lowValue];
     }
 }
 
-- (void)setLowValue:(int)lowValue {
-    int oldLow = _lowValue;
-    _lowValue = CLAMP(lowValue, _min, (_rangeEnabled ? _highValue - _step : _max));
+- (void)setLowValue:(double)lowValue {
+    long long oldLow = _lowValue;
+    _lowValue = CLAMP(lowValue, _min, (_rangeEnabled ? _highValue : _max));
     [self checkAndFireValueChangeEvent:oldLow oldHigh:_highValue fromUser:false];
     [self setNeedsDisplay];
 }
 
-- (void)setInitialHighValue:(int)highValue {
+- (void)setInitialHighValue:(double)highValue {
     if (!_initialHighValueSet) {
         _initialHighValueSet = true;
         [self setHighValue:highValue];
     }
+}
+
+- (void)setHighValue:(double)highValue {
+    long long oldHigh = _highValue;
+    _highValue = CLAMP(highValue, _lowValue, _max);
+    [self checkAndFireValueChangeEvent:_lowValue oldHigh:oldHigh fromUser:false];
+    [self setNeedsDisplay];
 }
 
 - (void)layoutSubviews {
@@ -249,25 +280,20 @@ UIFont *labelFont;
     [self setNeedsDisplay];
 }
 
-- (void)setHighValue:(int)highValue {
-    int oldHigh = _highValue;
-    _highValue = CLAMP(highValue, _lowValue + _step, _max);
-    [self checkAndFireValueChangeEvent:_lowValue oldHigh:oldHigh fromUser:false];
-    [self setNeedsDisplay];
-}
-
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-    if (activeTouch != nil || _min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
+    if (_disabled || activeTouch != nil || _min == LONG_MIN || _max == LONG_MAX) { // Min or max values have not been set yet
         return;
     }
 
     activeTouch = touches.anyObject;
 
-    int oldLow = _lowValue;
-    int oldHigh = _highValue;
+    long long oldLow = _lowValue;
+    long long oldHigh = _highValue;
 
-    int pointerValue = [self getValueForPosition];
-    if (!_rangeEnabled || ABS(pointerValue - _lowValue) < ABS(pointerValue - _highValue)) {
+    long long pointerValue = [self getValueForPosition];
+    if (!_rangeEnabled ||
+        (_lowValue == _highValue && pointerValue < _lowValue) ||
+        ABS(pointerValue - _lowValue) < ABS(pointerValue - _highValue)) {
         _activeThumb = THUMB_LOW;
         _lowValue = pointerValue;
     } else {
@@ -280,24 +306,27 @@ UIFont *labelFont;
 }
 
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
-    if (_min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
+    if (_disabled || _min == LONG_MIN || _max == LONG_MAX) { // Min or max values have not been set yet
         return;
     }
-    int oldLow = _lowValue;
-    int oldHigh = _highValue;
-    int pointerValue = [self getValueForPosition];
+    long long oldLow = _lowValue;
+    long long oldHigh = _highValue;
+    long long pointerValue = [self getValueForPosition];
     if (!_rangeEnabled) {
         _lowValue = pointerValue;
     } else if (_activeThumb == THUMB_LOW) {
-        _lowValue = CLAMP(pointerValue, _min, _highValue - _step);
+        _lowValue = CLAMP(pointerValue, _min, _highValue);
     } else if (_activeThumb == THUMB_HIGH) {
-        _highValue = CLAMP(pointerValue, _lowValue + _step, _max);
+        _highValue = CLAMP(pointerValue, _lowValue, _max);
     }
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:true];
     [self setNeedsDisplay];
 }
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
+    if(_disabled) {
+        return;
+    }
     activeTouch = nil;
     _activeThumb = THUMB_NONE;
     [_delegate rangeSliderTouchEnded:self];
@@ -305,13 +334,16 @@ UIFont *labelFont;
 }
 
 - (void)touchesCancelled:(NSSet<UITouch *> *)touches withEvent:(nullable UIEvent *)event {
+    if(_disabled) {
+        return;
+    }
     activeTouch = nil;
     _activeThumb = THUMB_NONE;
     [_delegate rangeSliderTouchEnded:self];
     [self setNeedsDisplay];
 }
 
-- (int)getValueForPosition {
+- (long long)getValueForPosition {
     CGFloat position = [activeTouch locationInView:self].x;
     if (position <= _thumbRadius) {
         return _min;
@@ -320,14 +352,13 @@ UIFont *labelFont;
     } else {
         CGFloat availableWidth = [self bounds].size.width - 2 * _thumbRadius;
         position -= _thumbRadius;
-        int value = _min + (int) ((_max - _min) * position / availableWidth);
-        value -= value % _step;
-        return value;
+        long long relativePosition = (long long) ((_max - _min) * position / availableWidth);
+        return _min + relativePosition - relativePosition % _step;
     }
 }
 
-- (void)checkAndFireValueChangeEvent:(int)oldLow oldHigh:(int)oldHigh fromUser:(BOOL)fromUser {
-    if(!_delegate || (oldLow == _lowValue && oldHigh == _highValue) || _min == INT_MIN || _max == INT_MAX) {
+- (void)checkAndFireValueChangeEvent:(long long)oldLow oldHigh:(long long)oldHigh fromUser:(BOOL)fromUser {
+    if(!_delegate || (oldLow == _lowValue && oldHigh == _highValue) || _min == LONG_MIN || _max == LONG_MAX) {
         return;
     }
 
@@ -335,7 +366,7 @@ UIFont *labelFont;
 }
 
 - (void)drawRect:(CGRect)rect {
-    if (_min == INT_MIN || _max == INT_MAX) { // Min or max values have not been set yet
+    if (_min == LONG_MIN || _max == LONG_MAX) { // Min or max values have not been set yet
         return;
     }
     UIColor *blankColor = [RangeSlider colorWithHexString:_blankColor];
@@ -484,8 +515,14 @@ UIFont *labelFont;
     CGContextClosePath(context);
 }
 
-- (NSString *)formatLabelText:(int)value {
-    return [NSString stringWithFormat:_textFormat, value];
+- (NSString *)formatLabelText:(long long)value {
+    if ([_valueType isEqualToString:TYPE_NUMBER]) {
+        return [NSString stringWithFormat:_textFormat, value];
+    } else if ([_valueType isEqualToString:TYPE_TIME]) {
+        return [dateTimeFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:(value / 1000)]];
+    } else { // For other formatting methods, add cases here
+        return @"";
+    }
 }
 
 @end

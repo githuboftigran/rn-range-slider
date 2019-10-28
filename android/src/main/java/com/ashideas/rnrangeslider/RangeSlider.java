@@ -5,13 +5,16 @@ import android.graphics.Canvas;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.support.annotation.Nullable;
-import android.support.v4.math.MathUtils;
-import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class RangeSlider extends View {
@@ -55,16 +58,19 @@ public class RangeSlider extends View {
     private float labelBorderWidth;
 
     private boolean rangeEnabled;
+    private String valueType;
+    private SimpleDateFormat dateTimeFormat;
+    private Date dateTime;
     private Gravity gravity;
 
-    private int minValue;
-    private int maxValue;
-    private int step;
+    private long minValue;
+    private long maxValue;
+    private long step;
 
     private boolean initialLowValueSet;
     private boolean initialHighValueSet;
-    private int lowValue;
-    private int highValue;
+    private long lowValue;
+    private long highValue;
 
     private float labelTailHeight;
     private float labelGapHeight;
@@ -89,11 +95,13 @@ public class RangeSlider extends View {
 
     private void init() {
 
+        dateTimeFormat = new SimpleDateFormat();
+        dateTime = new Date();
         activePointerId = -1;
         activeThumb = THUMB_NONE;
 
-        minValue = Integer.MIN_VALUE;
-        maxValue = Integer.MAX_VALUE;
+        minValue = Long.MIN_VALUE;
+        maxValue = Long.MAX_VALUE;
         lowValue = minValue;
         highValue = maxValue;
 
@@ -182,6 +190,9 @@ public class RangeSlider extends View {
 
     public void setTextFormat(String textFormat) {
         this.textFormat = textFormat;
+        if ("time".equals(valueType)) {
+            dateTimeFormat.applyPattern(textFormat == null ? "" : textFormat);
+        }
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
@@ -193,15 +204,23 @@ public class RangeSlider extends View {
     public void setRangeEnabled(boolean rangeEnabled) {
         this.rangeEnabled = rangeEnabled;
         if (rangeEnabled) {
-            if (highValue <= lowValue) {
-                highValue = lowValue + step;
+            if (highValue < lowValue) {
+                highValue = lowValue;
             }
             if (highValue > maxValue) {
                 highValue = maxValue;
             }
-            if (lowValue >= highValue) {
-                lowValue = highValue - step;
+            if (lowValue > highValue) {
+                lowValue = highValue;
             }
+        }
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+    public void setValueType(String valueType) {
+        this.valueType = valueType;
+        if ("time".equals(valueType)) {
+            dateTimeFormat.applyPattern(textFormat == null ? "" : textFormat);
         }
         ViewCompat.postInvalidateOnAnimation(this);
     }
@@ -246,15 +265,15 @@ public class RangeSlider extends View {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setMinValue(int minValue) {
-        if (minValue < maxValue) {
+    public void setMinValue(long minValue) {
+        if (minValue <= maxValue) {
             this.minValue = minValue;
             fitToMinMax();
         }
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setMaxValue(int maxValue) {
+    public void setMaxValue(long maxValue) {
         if (maxValue > minValue) {
             this.maxValue = maxValue;
             fitToMinMax();
@@ -263,18 +282,18 @@ public class RangeSlider extends View {
     }
 
     private void fitToMinMax() {
-        int oldLow = lowValue;
-        int oldHigh = highValue;
-        lowValue = MathUtils.clamp(lowValue, minValue, maxValue - step);
-        highValue = MathUtils.clamp(highValue, minValue + step, maxValue);
+        long oldLow = lowValue;
+        long oldHigh = highValue;
+        lowValue = Utils.clamp(lowValue, minValue, maxValue);
+        highValue = Utils.clamp(highValue, minValue, maxValue);
         checkAndFireValueChangeEvent(oldLow, oldHigh, false);
     }
 
-    public void setStep(int step) {
-        this.step = MathUtils.clamp(step, 1, maxValue);
+    public void setStep(long step) {
+        this.step = step;
     }
 
-    public void setInitialLowValue(int lowValue) {
+    public void setInitialLowValue(long lowValue) {
         if (!initialLowValueSet) {
             initialLowValueSet = true;
             this.setLowValue(lowValue);
@@ -286,14 +305,14 @@ public class RangeSlider extends View {
      *
      * @param lowValue
      */
-    public void setLowValue(int lowValue) {
-        int oldLow = this.lowValue;
-        this.lowValue = MathUtils.clamp(lowValue, minValue, rangeEnabled ? highValue - step : maxValue);
+    public void setLowValue(long lowValue) {
+        long oldLow = this.lowValue;
+        this.lowValue = Utils.clamp(lowValue, minValue, rangeEnabled ? highValue : maxValue);
         checkAndFireValueChangeEvent(oldLow, highValue, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
-    public void setInitialHighValue(int highValue) {
+    public void setInitialHighValue(long highValue) {
         if (!initialHighValueSet) {
             initialHighValueSet = true;
             this.setHighValue(highValue);
@@ -305,19 +324,22 @@ public class RangeSlider extends View {
      *
      * @param highValue
      */
-    public void setHighValue(int highValue) {
-        int oldHigh = this.highValue;
-        this.highValue = MathUtils.clamp(highValue, lowValue + step, maxValue);
+    public void setHighValue(long highValue) {
+        long oldHigh = this.highValue;
+        this.highValue = Utils.clamp(highValue, lowValue, maxValue);
         checkAndFireValueChangeEvent(lowValue, oldHigh, false);
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!isEnabled()) {
+            return false;
+        }
         int actionIndex = event.getActionIndex();
 
-        int oldLow = this.lowValue;
-        int oldHigh = this.highValue;
+        long oldLow = this.lowValue;
+        long oldHigh = this.highValue;
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -328,7 +350,7 @@ public class RangeSlider extends View {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                int pointerValue = getValueForPosition(event.getX(event.findPointerIndex(activePointerId)));
+                long pointerValue = getValueForPosition(event.getX(event.findPointerIndex(activePointerId)));
                 handleTouchMove(pointerValue);
                 break;
             case MotionEvent.ACTION_UP:
@@ -344,11 +366,11 @@ public class RangeSlider extends View {
         return true;
     }
 
-    private void checkAndFireValueChangeEvent(int oldLow, int oldHigh, boolean fromUser) {
+    private void checkAndFireValueChangeEvent(long oldLow, long oldHigh, boolean fromUser) {
         if (onValueChangeListener == null ||
                 (oldLow == lowValue && oldHigh == highValue) ||
-                minValue == Integer.MIN_VALUE ||
-                maxValue == Integer.MAX_VALUE) {
+                minValue == Long.MIN_VALUE ||
+                maxValue == Long.MAX_VALUE) {
 
             return;
         }
@@ -356,8 +378,12 @@ public class RangeSlider extends View {
         onValueChangeListener.onValueChanged(lowValue, highValue, fromUser);
     }
 
-    private void handleTouchDown(int pointerValue) {
-        if (!rangeEnabled || Math.abs(pointerValue - lowValue) < Math.abs(pointerValue - highValue)) {
+    private void handleTouchDown(long pointerValue) {
+        if (
+            !rangeEnabled ||
+            (lowValue == highValue && pointerValue < lowValue) ||
+            Math.abs(pointerValue - lowValue) < Math.abs(pointerValue - highValue) // The closer thumb
+        ) {
             activeThumb = THUMB_LOW;
             lowValue = pointerValue;
         } else {
@@ -366,34 +392,33 @@ public class RangeSlider extends View {
         }
     }
 
-    private void handleTouchMove(int pointerValue) {
+    private void handleTouchMove(long pointerValue) {
         if (!rangeEnabled) {
             lowValue = pointerValue;
         } else if (activeThumb == THUMB_LOW) {
-            lowValue = MathUtils.clamp(pointerValue, minValue, highValue - step);
+            lowValue = Utils.clamp(pointerValue, minValue, highValue);
         } else if (activeThumb == THUMB_HIGH) {
-            highValue = MathUtils.clamp(pointerValue, lowValue + step, maxValue);
+            highValue = Utils.clamp(pointerValue, lowValue, maxValue);
         }
     }
 
-    private int getValueForPosition(float position) {
+    private long getValueForPosition(float position) {
         if (position <= thumbRadius) {
             return minValue;
         } else if (position >= getWidth() - thumbRadius) {
             return maxValue;
         } else {
-            float availableWidth = getWidth() - 2 * thumbRadius;
+            double availableWidth = getWidth() - 2 * thumbRadius;
             position -= thumbRadius;
-            int value = minValue + (int) ((maxValue - minValue) * position / availableWidth);
-            value -= value % step;
-            return value;
+            long relativePosition = (long) ((maxValue - minValue) * position / availableWidth);
+            return minValue + relativePosition - relativePosition % step;
         }
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if (minValue == Integer.MIN_VALUE || maxValue == Integer.MAX_VALUE) { //Values are not set yet, don't draw anything
+        if (minValue == Long.MIN_VALUE || maxValue == Long.MAX_VALUE) { //Values are not set yet, don't draw anything
             return;
         }
         float labelTextHeight = getLabelTextHeight();
@@ -522,12 +547,19 @@ public class RangeSlider extends View {
      * @param value
      * @return formatted text
      */
-    private String formatLabelText(int value) {
-        return String.format(textFormat, value);
+    private String formatLabelText(long value) {
+        if ("number".equals(valueType)) {
+            return String.format(textFormat, value);
+        } else if ("time".equals(valueType)) {
+            dateTime.setTime(value);
+            return dateTimeFormat.format(dateTime);
+        } else { // For other formatting methods, add cases here
+            return "";
+        }
     }
 
     public interface OnValueChangeListener {
-        void onValueChanged(int lowValue, int highValue, boolean fromUser);
+        void onValueChanged(long lowValue, long highValue, boolean fromUser);
     }
 
     public interface OnSliderTouchListener {
