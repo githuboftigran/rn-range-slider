@@ -140,4 +140,3 @@ this._rangeSlider.setLowValue(42);
 
 ## Known issues
 * Label's corner radius is not working on iOS
-* Problems with integration of react-native 0.60+
