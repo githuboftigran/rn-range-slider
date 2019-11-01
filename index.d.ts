@@ -38,5 +38,7 @@ declare module "rn-range-slider" {
     ) => void;
   }
 
-  export default class RangeSlider extends React.Component<RangeSliderProps> {}
+  export default class RangeSlider extends React.PureComponent<
+    RangeSliderProps
+  > {}
 }
