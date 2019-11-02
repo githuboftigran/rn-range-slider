@@ -1,7 +1,7 @@
 import React from "react";
 
 declare module "rn-range-slider" {
-  interface RangeSliderProps {
+  export interface RangeSliderProps {
     rangeEnabled?: boolean;
     disabled?: boolean;
     valueType?: "number" | "time";
