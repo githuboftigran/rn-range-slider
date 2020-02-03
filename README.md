@@ -140,3 +140,4 @@ this._rangeSlider.setLowValue(42);
 
 ## Known issues
 * Label's corner radius is not working on iOS
+* Problems with expo (won't fix as I don't take Expo seriously)

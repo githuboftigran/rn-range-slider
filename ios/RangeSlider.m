@@ -138,7 +138,7 @@ NSDateFormatter *dateTimeFormatter;
 }
 
 - (void)setTextFormat:(NSString *)textFormat {
-    _textFormat = textFormat;
+    _textFormat = [textFormat stringByReplacingOccurrencesOfString:@"%d" withString:@"%lld"]; // We use long long here
     if ([_valueType isEqualToString:TYPE_TIME]) {
         [dateTimeFormatter setDateFormat:textFormat];
     }
@@ -218,11 +218,11 @@ NSDateFormatter *dateTimeFormatter;
     [self setNeedsDisplay];
 }
 
-- (void)setStep:(double)step {
+- (void)setStep:(long long)step {
     _step = step;
 }
 
-- (void)setMin:(double)min {
+- (void)setMin:(long long)min {
     if (min < _max) {
         _min = min;
         [self fitToMinMax];
@@ -230,7 +230,7 @@ NSDateFormatter *dateTimeFormatter;
     [self setNeedsDisplay];
 }
 
-- (void)setMax:(double)max {
+- (void)setMax:(long long)max {
     if (max > _min) {
         _max = max;
         [self fitToMinMax];
@@ -247,28 +247,28 @@ NSDateFormatter *dateTimeFormatter;
     [self checkAndFireValueChangeEvent:oldLow oldHigh:oldHigh fromUser:false];
 }
 
-- (void)setInitialLowValue:(double)lowValue {
+- (void)setInitialLowValue:(long long)lowValue {
     if (!_initialLowValueSet) {
         _initialLowValueSet = true;
         [self setLowValue:lowValue];
     }
 }
 
-- (void)setLowValue:(double)lowValue {
+- (void)setLowValue:(long long)lowValue {
     long long oldLow = _lowValue;
     _lowValue = CLAMP(lowValue, _min, (_rangeEnabled ? _highValue : _max));
     [self checkAndFireValueChangeEvent:oldLow oldHigh:_highValue fromUser:false];
     [self setNeedsDisplay];
 }
 
-- (void)setInitialHighValue:(double)highValue {
+- (void)setInitialHighValue:(long long)highValue {
     if (!_initialHighValueSet) {
         _initialHighValueSet = true;
         [self setHighValue:highValue];
     }
 }
 
-- (void)setHighValue:(double)highValue {
+- (void)setHighValue:(long long)highValue {
     long long oldHigh = _highValue;
     _highValue = CLAMP(highValue, _lowValue, _max);
     [self checkAndFireValueChangeEvent:_lowValue oldHigh:oldHigh fromUser:false];

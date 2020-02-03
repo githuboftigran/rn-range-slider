@@ -31,7 +31,7 @@ class RangeSlider extends PureComponent {
     }
 
     render() {
-        let { valueType, initialHighValue, initialLowValue, min, max } = this.props;
+        let { valueType, initialHighValue, initialLowValue, min, max, step } = this.props;
         if (initialLowValue === undefined) {
             initialLowValue = min;
         }
@@ -46,7 +46,14 @@ class RangeSlider extends PureComponent {
             max = dateToTimeStamp(max);
         }
 
-        const sliderProps = {...this.props, initialLowValue, initialHighValue, min, max};
+        const sliderProps = {
+            ...this.props,
+            initialLowValue: String(initialLowValue),
+            initialHighValue: String(initialHighValue),
+            min: String(min),
+            max: String(max),
+            step: String(step),
+        };
         return <NativeRangeSlider
         {...sliderProps}
         ref={component => this._slider = component}
@@ -61,7 +68,7 @@ class RangeSlider extends PureComponent {
         if (valueType === 'time') {
             value = dateToTimeStamp(value);
         }
-        this._slider.setNativeProps({ highValue: value });
+        this._slider.setNativeProps({ highValue: String(value) });
     }
 
     setLowValue = value => {
@@ -69,7 +76,7 @@ class RangeSlider extends PureComponent {
         if (valueType === 'time') {
             value = dateToTimeStamp(value);
         }
-        this._slider.setNativeProps({ lowValue: value });
+        this._slider.setNativeProps({ lowValue: String(value) });
     }
 }
 

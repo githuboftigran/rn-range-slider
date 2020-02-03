@@ -45,38 +45,38 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
     }
 
     @ReactProp(name = "min")
-    public void setMin(RangeSlider view, double min) {
-        view.setMinValue((long) min);
+    public void setMin(RangeSlider view, String min) {
+        view.setMinValue(Long.parseLong(min));
     }
 
     @ReactProp(name = "max")
-    public void setMax(RangeSlider view, double max) {
-        view.setMaxValue((long) max);
+    public void setMax(RangeSlider view, String max) {
+        view.setMaxValue(Long.parseLong(max));
     }
 
     @ReactProp(name = "step")
-    public void setStep(RangeSlider view, double step) {
-        view.setStep((long) step);
+    public void setStep(RangeSlider view, String step) {
+        view.setStep(Long.parseLong(step));
     }
 
     @ReactProp(name = "highValue")
-    public void setHighValue(RangeSlider view, double value) {
-        view.setHighValue((long) value);
+    public void setHighValue(RangeSlider view, String value) {
+        view.setHighValue(Long.parseLong(value));
     }
 
     @ReactProp(name = "lowValue")
-    public void setLowValue(RangeSlider view, double value) {
-        view.setLowValue((long) value);
+    public void setLowValue(RangeSlider view, String value) {
+        view.setLowValue(Long.parseLong(value));
     }
 
     @ReactProp(name = "initialHighValue")
-    public void setInitialHighValue(RangeSlider view, double value) {
-        view.setInitialHighValue((long) value);
+    public void setInitialHighValue(RangeSlider view, String value) {
+        view.setInitialHighValue(Long.parseLong(value));
     }
 
     @ReactProp(name = "initialLowValue")
-    public void setInitialLowValue(RangeSlider view, double value) {
-        view.setInitialLowValue((long) value);
+    public void setInitialLowValue(RangeSlider view, String value) {
+        view.setInitialLowValue(Long.parseLong(value));
     }
 
     @ReactProp(name = "lineWidth")

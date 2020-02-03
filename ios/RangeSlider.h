@@ -11,9 +11,9 @@
 
 @protocol RangeSliderDelegate <NSObject>
 
-- (void)rangeSliderValueWasChanged:(RangeSlider *)slider fromUser:(BOOL)fromUser;
-- (void)rangeSliderTouchStarted:(RangeSlider *)slider;
-- (void)rangeSliderTouchEnded:(RangeSlider *)slider;
+- (void)rangeSliderValueWasChanged:(RangeSlider *_Nonnull)slider fromUser:(BOOL)fromUser;
+- (void)rangeSliderTouchStarted:(RangeSlider *_Nonnull)slider;
+- (void)rangeSliderTouchEnded:(RangeSlider *_Nonnull)slider;
 
 @end
 
