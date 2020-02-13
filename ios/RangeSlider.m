@@ -452,7 +452,7 @@ NSDateFormatter *dateTimeFormatter;
     textRect = [text boundingRectWithSize:CGSizeMake(500, 500) options:NSStringDrawingUsesLineFragmentOrigin attributes:labelTextAttributes context:nil];
     CGFloat labelTextWidth = textRect.size.width;
     CGFloat labelWidth = labelTextWidth + 2 * _labelPadding + 2 * _labelBorderWidth;
-    CGFloat cx = _activeThumb == THUMB_LOW ? lowX : highX;
+    CGFloat cx = (_activeThumb == THUMB_LOW || [_labelStyle isEqualToString:ALWAYS]) ? lowX : highX;
 
     if (labelWidth < _labelTailHeight / SQRT_3_2) {
         labelWidth = _labelTailHeight / SQRT_3_2;

@@ -459,14 +459,14 @@ public class RangeSlider extends View {
             }
         }
 
-        if ((labelStyle == LabelStyle.NONE || (activeThumb == THUMB_NONE && labelStyle != LabelStyle.ALWAYS)) {
+        if ((labelStyle == LabelStyle.NONE || (activeThumb == THUMB_NONE && labelStyle != LabelStyle.ALWAYS))) {
             return;
         }
 
         String text = formatLabelText(activeThumb == THUMB_LOW ? lowValue : highValue);
         float labelTextWidth = labelTextPaint.measureText(text);
         float labelWidth = labelTextWidth + 2 * labelPadding + 2 * labelBorderWidth;
-        float cx = activeThumb == THUMB_LOW ? lowX : highX;
+        float cx = (activeThumb == THUMB_LOW || labelStyle == LabelStyle.ALWAYS) ? lowX : highX;
 
         if (labelWidth < labelTailHeight / SQRT_3_2) {
             labelWidth = labelTailHeight / SQRT_3_2;
