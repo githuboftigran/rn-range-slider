@@ -443,8 +443,8 @@ NSDateFormatter *dateTimeFormatter;
         }
     }
 
-    if (([_labelStyle isEqualToString:NONE] || _activeThumb == THUMB_NONE)
-        && ![_labelStyle isEqualToString:ALWAYS]) {
+    
+    if ([_labelStyle isEqualToString:NONE] || (_activeThumb == THUMB_NONE && ![_labelStyle isEqualToString:ALWAYS])) {
         return;
     }
 

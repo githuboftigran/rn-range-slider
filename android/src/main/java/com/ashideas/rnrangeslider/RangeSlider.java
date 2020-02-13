@@ -459,7 +459,7 @@ public class RangeSlider extends View {
             }
         }
 
-        if ((labelStyle == LabelStyle.NONE || activeThumb == THUMB_NONE) && labelStyle != LabelStyle.ALWAYS) {
+        if ((labelStyle == LabelStyle.NONE || (activeThumb == THUMB_NONE && labelStyle != LabelStyle.ALWAYS)) {
             return;
         }
 
