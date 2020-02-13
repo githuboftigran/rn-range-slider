@@ -463,7 +463,7 @@ public class RangeSlider extends View {
             return;
         }
 
-        String text = formatLabelText(activeThumb == THUMB_LOW ? lowValue : highValue);
+        String text = formatLabelText(activeThumb == THUMB_LOW || labelStyle == LabelStyle.ALWAYS ? lowValue : highValue);
         float labelTextWidth = labelTextPaint.measureText(text);
         float labelWidth = labelTextWidth + 2 * labelPadding + 2 * labelBorderWidth;
         float cx = (activeThumb == THUMB_LOW || labelStyle == LabelStyle.ALWAYS) ? lowX : highX;
