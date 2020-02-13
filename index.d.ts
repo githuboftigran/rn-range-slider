@@ -14,7 +14,7 @@ declare module "rn-range-slider" {
     lineWidth?: number;
     thumbRadius?: number;
     thumbBorderWidth?: number;
-    labelStyle?: "none" | "bubble";
+    labelStyle?: "none" | "bubble" | "always";
     labelGapHeight?: number;
     labelTailHeight?: number;
     labelFontSize?: number;
