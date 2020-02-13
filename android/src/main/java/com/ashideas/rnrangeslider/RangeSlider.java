@@ -20,6 +20,7 @@ import java.util.Date;
 public class RangeSlider extends View {
 
     public enum LabelStyle {
+        ALWAYS,
         BUBBLE,
         NONE
     }
@@ -458,7 +459,7 @@ public class RangeSlider extends View {
             }
         }
 
-        if (labelStyle == LabelStyle.NONE || activeThumb == THUMB_NONE) {
+        if ((labelStyle == LabelStyle.NONE || activeThumb == THUMB_NONE) && labelStyle != LabelStyle.ALWAYS) {
             return;
         }
 

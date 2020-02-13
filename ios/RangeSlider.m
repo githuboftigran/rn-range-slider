@@ -9,6 +9,7 @@
 #define TYPE_NUMBER @"number"
 #define TYPE_TIME @"time"
 #define NONE @"none"
+#define ALWAYS @"always"
 #define BUBBLE @"bubble"
 #define TOP @"top"
 #define BOTTOM @"bottom"
@@ -442,7 +443,8 @@ NSDateFormatter *dateTimeFormatter;
         }
     }
 
-    if ([_labelStyle isEqualToString:NONE] || _activeThumb == THUMB_NONE) {
+    if (([_labelStyle isEqualToString:NONE] || _activeThumb == THUMB_NONE)
+        && ![_labelStyle isEqualToString:ALWAYS]) {
         return;
     }
 
