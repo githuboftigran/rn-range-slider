@@ -366,6 +366,14 @@ NSDateFormatter *dateTimeFormatter;
     [_delegate rangeSliderValueWasChanged:self fromUser:fromUser];
 }
 
+- (UIColor *)colorFromHexString:(NSString *)hexString {
+    unsigned rgbValue = 0;
+    NSScanner *scanner = [NSScanner scannerWithString:hexString];
+    [scanner setScanLocation:1]; // bypass '#' character
+    [scanner scanHexInt:&rgbValue];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
+}
+
 - (void)drawRect:(CGRect)rect {
     if (_min == LONG_MIN || _max == LONG_MAX) { // Min or max values have not been set yet
         return;
@@ -406,11 +414,13 @@ NSDateFormatter *dateTimeFormatter;
     CGFloat availableWidth = width - 2 * _thumbRadius;
 
     // Draw the blank line
-    CGContextSetLineWidth(context, _lineWidth);
-    CGContextMoveToPoint(context, _thumbRadius, cy);
-    CGContextAddLineToPoint(context, width - _thumbRadius, cy);
-    [blankColor setStroke];
-    CGContextStrokePath(context);
+    if(!_gradientPresent) {
+        CGContextSetLineWidth(context, _lineWidth);
+        CGContextMoveToPoint(context, _thumbRadius, cy);
+        CGContextAddLineToPoint(context, width - _thumbRadius, cy);
+        [blankColor setStroke];
+        CGContextStrokePath(context);
+    }
 
     CGFloat lowX = _thumbRadius + availableWidth * (_lowValue - _min) / (_max - _min);
     CGFloat highX = _thumbRadius + availableWidth * (_highValue - _min) / (_max - _min);
@@ -421,8 +431,29 @@ NSDateFormatter *dateTimeFormatter;
         CGContextMoveToPoint(context, lowX, cy);
         CGContextAddLineToPoint(context, highX, cy);
     } else {
-        CGContextMoveToPoint(context, _thumbRadius, cy);
-        CGContextAddLineToPoint(context, lowX, cy);
+        if(!_gradientPresent) {
+            CGContextMoveToPoint(context, _thumbRadius, cy);
+            CGContextAddLineToPoint(context, lowX, cy);
+        } else {
+            CGContextMoveToPoint(context, _thumbRadius, cy);
+            CGContextAddLineToPoint(context,  width - _thumbRadius, cy);
+            
+            //gradient
+            UIView *view = [[UIView alloc] initWithFrame:CGRectMake(_thumbRadius, cy, width - _thumbRadius, cy)];
+            CAGradientLayer *gradient = [CAGradientLayer layer];
+
+            gradient.frame = view.bounds;
+            gradient.colors = @[
+                [self colorFromHexString:@"#FF9601"],
+                [self colorFromHexString:@"#FFE586"],
+                [self colorFromHexString:@"#F9F9F9"],
+                [self colorFromHexString:@"#ABE1FB"],
+                [self colorFromHexString:@"#3C64B1"]
+            ];
+
+            [view.layer insertSublayer:gradient atIndex:0];
+            
+        }
     }
     CGContextStrokePath(context);
 
