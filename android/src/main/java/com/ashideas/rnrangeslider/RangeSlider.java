@@ -3,6 +3,7 @@ package com.ashideas.rnrangeslider;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.graphics.CornerPathEffect;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
@@ -427,6 +428,17 @@ public class RangeSlider extends View {
         }
     }
 
+    private int getColorWithAlpha(String colorHex, float ratio) {
+        int color = Integer.parseInt(colorHex, 16);
+        int newColor = 0;
+        int alpha = Math.round(Color.alpha(color) * ratio);
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        newColor = Color.argb(alpha, r, g, b);
+        return newColor;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -467,7 +479,16 @@ public class RangeSlider extends View {
             if(!gradientPresent) {
                 canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
             } else {
-                int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
+
+                int gradientColors[] = {
+                        getColorWithAlpha("FF9601", 0f),
+                        getColorWithAlpha("FFE586", .2448f),
+                        getColorWithAlpha("F9F9F9", .04948f),
+                        getColorWithAlpha("ABE1FB", .7458f),
+                        getColorWithAlpha("3C64B1", 1f),
+
+                };
+                //int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
                 float spreadCoefficients[] = null; //spread evenly
                 selectionPaint.setShader(new LinearGradient(thumbRadius, cy, width - thumbRadius, cy, gradientColors, spreadCoefficients, Shader.TileMode.CLAMP));
                 canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, selectionPaint);
