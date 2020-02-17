@@ -469,7 +469,7 @@ public class RangeSlider extends View {
             } else {
                 int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
                 float spreadCoefficients[] = null; //spread evenly
-                selectionPaint.setShader(new LinearGradient(thumbRadius, cy, lowX, cy, gradientColors, spreadCoefficients, Shader.TileMode.MIRROR));
+                selectionPaint.setShader(new LinearGradient(thumbRadius, cy, width, cy, gradientColors, spreadCoefficients, Shader.TileMode.MIRROR));
                 canvas.drawLine(thumbRadius, cy, width, cy, selectionPaint);
             }
         }
