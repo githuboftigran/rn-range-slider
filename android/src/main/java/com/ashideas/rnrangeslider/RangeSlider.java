@@ -479,16 +479,13 @@ public class RangeSlider extends View {
             if(!gradientPresent) {
                 canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
             } else {
-
                 int gradientColors[] = {
-                        getColorWithAlpha("FF9601", 0f),
-                        getColorWithAlpha("FFE586", .2448f),
-                        getColorWithAlpha("F9F9F9", .04948f),
-                        getColorWithAlpha("ABE1FB", .7458f),
-                        getColorWithAlpha("3C64B1", 1f),
-
+                        0xFFFF9601,
+                        0xFFFFE586,
+                        0xFFF9F9F9,
+                        0xFFABE1FB,
+                        0xFF3C64B1
                 };
-                //int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
                 float spreadCoefficients[] = null; //spread evenly
                 selectionPaint.setShader(new LinearGradient(thumbRadius, cy, width - thumbRadius, cy, gradientColors, spreadCoefficients, Shader.TileMode.CLAMP));
                 canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, selectionPaint);
