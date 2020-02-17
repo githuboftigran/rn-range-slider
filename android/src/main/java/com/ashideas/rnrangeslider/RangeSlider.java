@@ -271,6 +271,12 @@ public class RangeSlider extends View {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
+    public void setGradientPresent(Boolean gradientPresent) {
+        this.gradientPresent = gradientPresent;
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+
     public void setMinValue(long minValue) {
         if (minValue <= maxValue) {
             this.minValue = minValue;
