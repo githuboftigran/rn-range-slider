@@ -2,9 +2,12 @@ package com.ashideas.rnrangeslider;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.CornerPathEffect;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -30,6 +33,8 @@ public class RangeSlider extends View {
         BOTTOM,
         CENTER
     }
+
+    private boolean gradientPresent = false;
 
     private static final float SQRT_3 = (float) Math.sqrt(3);
     private static final float SQRT_3_2 = SQRT_3 / 2;
@@ -441,15 +446,26 @@ public class RangeSlider extends View {
         float availableWidth = width - 2 * thumbRadius;
 
         // Draw the blank line
-        canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, blankPaint);
+        if(!gradientPresent) {
+            canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, blankPaint);
+        }
+
         float lowX = thumbRadius + availableWidth * (lowValue - minValue) / (maxValue - minValue);
         float highX = thumbRadius + availableWidth * (highValue - minValue) / (maxValue - minValue);
+
 
         // Draw the selected line
         if (rangeEnabled) {
             canvas.drawLine(lowX, cy, highX, cy, selectionPaint);
         } else {
-            canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
+            if(!gradientPresent) {
+                canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
+            } else {
+                int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
+                float spreadCoefficients[] = null; //spread evenly
+                selectionPaint.setShader(new LinearGradient(thumbRadius, cy, lowX, cy, gradientColors, spreadCoefficients, Shader.TileMode.MIRROR));
+                canvas.drawLine(thumbRadius, cy, width, cy, selectionPaint);
+            }
         }
 
         if (thumbRadius > 0) {
