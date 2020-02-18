@@ -2,9 +2,13 @@ package com.ashideas.rnrangeslider;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.graphics.CornerPathEffect;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -30,6 +34,8 @@ public class RangeSlider extends View {
         BOTTOM,
         CENTER
     }
+
+    private boolean gradientPresent = false;
 
     private static final float SQRT_3 = (float) Math.sqrt(3);
     private static final float SQRT_3_2 = SQRT_3 / 2;
@@ -266,6 +272,12 @@ public class RangeSlider extends View {
         ViewCompat.postInvalidateOnAnimation(this);
     }
 
+    public void setGradientPresent(Boolean gradientPresent) {
+        this.gradientPresent = gradientPresent;
+        ViewCompat.postInvalidateOnAnimation(this);
+    }
+
+
     public void setMinValue(long minValue) {
         if (minValue <= maxValue) {
             this.minValue = minValue;
@@ -416,6 +428,17 @@ public class RangeSlider extends View {
         }
     }
 
+    private int getColorWithAlpha(String colorHex, float ratio) {
+        int color = Integer.parseInt(colorHex, 16);
+        int newColor = 0;
+        int alpha = Math.round(Color.alpha(color) * ratio);
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        newColor = Color.argb(alpha, r, g, b);
+        return newColor;
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -441,15 +464,35 @@ public class RangeSlider extends View {
         float availableWidth = width - 2 * thumbRadius;
 
         // Draw the blank line
-        canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, blankPaint);
+        if(!gradientPresent) {
+            canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, blankPaint);
+        }
+
         float lowX = thumbRadius + availableWidth * (lowValue - minValue) / (maxValue - minValue);
         float highX = thumbRadius + availableWidth * (highValue - minValue) / (maxValue - minValue);
+
 
         // Draw the selected line
         if (rangeEnabled) {
             canvas.drawLine(lowX, cy, highX, cy, selectionPaint);
         } else {
-            canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
+            if(!gradientPresent) {
+                canvas.drawLine(thumbRadius, cy, lowX, cy, selectionPaint);
+            } else {
+
+                int gradientColors[] = {
+                        getColorWithAlpha("FF9601", 1),
+                        getColorWithAlpha("FFE586", 1),
+                        getColorWithAlpha("F9F9F9", 1),
+                        getColorWithAlpha("ABE1FB", 1),
+                        getColorWithAlpha("3C64B1", 1),
+
+                };
+                //int gradientColors[] = { Color.RED, Color.YELLOW, Color.BLUE };
+                float spreadCoefficients[] = null; //spread evenly
+                selectionPaint.setShader(new LinearGradient(thumbRadius, cy, width - thumbRadius, cy, gradientColors, spreadCoefficients, Shader.TileMode.CLAMP));
+                canvas.drawLine(thumbRadius, cy, width - thumbRadius, cy, selectionPaint);
+            }
         }
 
         if (thumbRadius > 0) {

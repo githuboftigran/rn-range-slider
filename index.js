@@ -116,6 +116,7 @@ RangeSlider.propTypes = {
     onTouchStart: PropTypes.func,
     onTouchEnd: PropTypes.func,
     onValueChanged: PropTypes.func,
+    gradientPresent: PropTypes.bool
 }
 
 RangeSlider.defaultProps = {
@@ -147,6 +148,7 @@ RangeSlider.defaultProps = {
     onTouchStart: noop,
     onTouchEnd: noop,
     onValueChanged: noop,
+    gradientPresent: false
 }
 
 export default RangeSlider

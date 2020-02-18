@@ -169,6 +169,11 @@ public class RangeSliderViewManager extends SimpleViewManager<RangeSlider> {
         view.setLabelBorderColor(hexColor);
     }
 
+    @ReactProp(name = "gradientPresent")
+    public void setLabelStyle(RangeSlider view, Boolean gradientPresent) {
+        view.setGradientPresent(gradientPresent);
+    }
+
     @Override
     protected RangeSlider createViewInstance(final ThemedReactContext reactContext) {
         final RangeSlider slider = new RangeSlider(reactContext);

@@ -31,6 +31,7 @@ declare module "rn-range-slider" {
     labelBorderColor?: string;
     onTouchStart?: () => void;
     onTouchEnd?: () => void;
+    gradientPresent?: boolean;
     onValueChanged?:
       | ((lowValue: number, highValue: number, fromUser: boolean) => void)
       | ((lowValue: Date, highValue: Date, fromUser: boolean) => void);

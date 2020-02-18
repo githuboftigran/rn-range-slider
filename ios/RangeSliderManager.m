@@ -46,6 +46,8 @@ RCT_EXPORT_VIEW_PROPERTY(thumbBorderColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelBackgroundColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelTextColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(labelBorderColor, NSString)
+RCT_EXPORT_VIEW_PROPERTY(gradientPresent, BOOL)
+
 RCT_CUSTOM_VIEW_PROPERTY(min, NSString, RangeSlider)
 {
     view.min = [RCTConvert NSString:json].longLongValue;
