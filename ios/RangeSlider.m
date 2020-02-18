@@ -17,6 +17,11 @@
 #define SQRT_3 (float) sqrt(3)
 #define SQRT_3_2 SQRT_3 / 2
 #define CLAMP(x, min, max) (x < min ? min : x > max ? max : x)
+#define UIColorFromRGB(rgbValue) [UIColor \
+    colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 \
+    green:((float)((rgbValue & 0xFF00) >> 8))/255.0 \
+blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
+
 
 const int THUMB_LOW = 0;
 const int THUMB_HIGH = 1;
@@ -366,14 +371,6 @@ NSDateFormatter *dateTimeFormatter;
     [_delegate rangeSliderValueWasChanged:self fromUser:fromUser];
 }
 
-- (UIColor *)colorFromHexString:(NSString *)hexString {
-    unsigned rgbValue = 0;
-    NSScanner *scanner = [NSScanner scannerWithString:hexString];
-    [scanner setScanLocation:1]; // bypass '#' character
-    [scanner scanHexInt:&rgbValue];
-    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
-}
-
 - (void)drawRect:(CGRect)rect {
     if (_min == LONG_MIN || _max == LONG_MAX) { // Min or max values have not been set yet
         return;
@@ -435,28 +432,30 @@ NSDateFormatter *dateTimeFormatter;
             CGContextMoveToPoint(context, _thumbRadius, cy);
             CGContextAddLineToPoint(context, lowX, cy);
         } else {
-            CGContextMoveToPoint(context, _thumbRadius, cy);
-            CGContextAddLineToPoint(context,  width - _thumbRadius, cy);
-            
-            //gradient
-            UIView *view = [[UIView alloc] initWithFrame:CGRectMake(_thumbRadius, cy, width - _thumbRadius, cy)];
-            CAGradientLayer *gradient = [CAGradientLayer layer];
-
-            gradient.frame = view.bounds;
-            gradient.colors = @[
-                [self colorFromHexString:@"#FF9601"],
-                [self colorFromHexString:@"#FFE586"],
-                [self colorFromHexString:@"#F9F9F9"],
-                [self colorFromHexString:@"#ABE1FB"],
-                [self colorFromHexString:@"#3C64B1"]
-            ];
-
-            [view.layer insertSublayer:gradient atIndex:0];
-            
+            //draw gradient
+            CGContextSaveGState(context);
+            CGFloat rectRadius = 6.0;
+            CGPathRef clippath = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(_thumbRadius, cy - _lineWidth / 2, availableWidth, _lineWidth) byRoundingCorners:UIRectCornerAllCorners cornerRadii:CGSizeMake(rectRadius, rectRadius)].CGPath;
+            CGContextAddPath(context, clippath);
+            CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+            NSArray *colors = [
+                                   NSArray arrayWithObjects:
+                                   (id)UIColorFromRGB(0xFF9601).CGColor,
+                                   (id)UIColorFromRGB(0xFFE586).CGColor,
+                                   (id)UIColorFromRGB(0xF9F9F9).CGColor,
+                                   (id)UIColorFromRGB(0xABE1FB).CGColor,
+                                   (id)UIColorFromRGB(0x3C64B1).CGColor,
+                                    nil
+                               ];
+            CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, (CFArrayRef)colors, nil);
+            CGContextClip(context);
+            CGPoint startPoint = CGPointMake(_thumbRadius, cy);
+            CGPoint endPoint = CGPointMake(width - _thumbRadius, cy);
+            CGContextDrawLinearGradient(context, gradient, startPoint, endPoint, 0);
+            CGContextRestoreGState(context);
         }
     }
-    CGContextStrokePath(context);
-
+    //CGContextStrokePath(context); !!!!!!!!
     if (_thumbRadius > 0) {
         [thumbBorderColor setFill];
         CGContextAddArc(context, lowX, cy, _thumbRadius, 0, M_PI * 2, true);
