@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {requireNativeComponent} from 'react-native';
+import {requireNativeComponent, ViewPropTypes} from 'react-native';
 import PropTypes from 'prop-types'
 
 const noop = () => {}
@@ -86,6 +86,7 @@ const numberOrDate = PropTypes.oneOfType([
 ]);
 
 RangeSlider.propTypes = {
+    style: ViewPropTypes.style,
     rangeEnabled: PropTypes.bool,
     disabled: PropTypes.bool,
     valueType: PropTypes.oneOf(['number', 'time']),
