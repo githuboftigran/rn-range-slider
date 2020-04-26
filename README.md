@@ -83,6 +83,7 @@ Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
 | labelBorderColor |  Color label's border | String | **#d13e85** |
 | labelTextColor |  Color label's text | String | **#ffffff** |
 | step |  Step of slider. If `valueType` is set to **time**, this prop wil considered as milliseconds. | Number | **1** |
+| style | View style | object | undefined
 
 Props below may have different types depending on `valueType` prop.<br/>
 If `valueType` is set to **number**, these props should be `Number`s (integer).<br/>
