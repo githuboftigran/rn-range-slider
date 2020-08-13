@@ -21,7 +21,8 @@ public class RangeSlider extends View {
 
     public enum LabelStyle {
         BUBBLE,
-        NONE
+        NONE,
+        ALWAYS
     }
 
     public enum Gravity {
@@ -458,7 +459,7 @@ public class RangeSlider extends View {
             }
         }
 
-        if (labelStyle == LabelStyle.NONE || activeThumb == THUMB_NONE) {
+        if ((labelStyle == LabelStyle.NONE || activeThumb == THUMB_NONE) && labelStyle != LabelStyle.ALWAYS) {
             return;
         }
 
