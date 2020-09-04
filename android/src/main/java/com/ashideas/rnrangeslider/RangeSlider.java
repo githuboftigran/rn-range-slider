@@ -343,6 +343,9 @@ public class RangeSlider extends View {
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                if (activePointerId != -1) { // There is already a pointer, ignore all the others
+                    return true;
+                }
                 activePointerId = event.getPointerId(actionIndex);
                 handleTouchDown(getValueForPosition(event.getX()));
                 if (onSliderTouchListener != null) {
@@ -350,7 +353,11 @@ public class RangeSlider extends View {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                long pointerValue = getValueForPosition(event.getX(event.findPointerIndex(activePointerId)));
+                int pointerIndex = event.findPointerIndex(activePointerId);
+                if (pointerIndex == -1) { // Not our pointer, ignore it
+                    return true;
+                }
+                long pointerValue = getValueForPosition(event.getX(pointerIndex));
                 handleTouchMove(pointerValue);
                 break;
             case MotionEvent.ACTION_UP:
