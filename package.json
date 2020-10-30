@@ -2,7 +2,7 @@
   "name": "rn-range-slider",
   "version": "2.0.0",
   "author": "Tigran Sahakyan <mail.of.tigran@gmail.com>",
-  "description": "React Native Range Slider for Android and iOS",
+  "description": "A highly optimized pure JS implementation of Range Slider for React Native",
   "homepage": "https://github.com/githuboftigran/rn-range-slider",
   "main": "index.js",
   "scripts": {
