@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useRef, useMemo } from 'react';
-import {Animated} from 'react-native';
-import {clamp} from './helpers';
+import { Animated } from 'react-native';
+import { clamp } from './helpers';
 import styles from './styles';
 import FollowerContainer from './LabelContainer';
 

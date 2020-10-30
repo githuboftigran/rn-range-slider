@@ -25,6 +25,9 @@ You can find the version 1 [here](https://github.com/githuboftigran/rn-range-sli
 
 RangeSlider uses react hooks, so this component doesn't work with React Native versions below 0.59.0
 
+You can find basic implementation of needed components (Thumb, Rail, RailSelected, Label, Notch) [here](https://github.com/githuboftigran/rn-widgets-demo).
+
+
 ```
 ...
 
@@ -63,7 +66,6 @@ const handleValueChange = useCallback((low, high) => {
 
 ### Properties
 
-
 | Name |      Description      | Type | Default Value |
 | --- | --- | --- | :-------------: |
 | `min` |  Minimum value of slider | number | _**required**_ |
@@ -80,6 +82,8 @@ const handleValueChange = useCallback((low, high) => {
 | `renderLabel` | Should render label above thumbs.<br/>If no function is passed, no label will be drawn. | `(value: number) => Node` | `undefined` |
 | `renderNotch` | Should render the notch below the label (above the thumbs).<br/>Classic notch is a small triangle below the label.<br/>If `allowLabelOverflow` is not set to true, the notch will continue moving with thumb even if the label has already reached the edge of the component and can't move further.| `() => Node` | `undefined` |
 | `onValueChanged` | Will be called when a value was changed.<br/>If `disableRange` is set to true, the second argument should be ignored. | `(low: number, high: number) => void` | `undefined` |
+
+All the other props (e.g. style) will be passed to root container component.
 
 ## A special section about permanent labels.
 

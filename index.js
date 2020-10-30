@@ -11,7 +11,6 @@ const noop = () => {};
 
 const Slider = (
   {
-    style,
     min,
     max,
     step,
@@ -26,6 +25,7 @@ const Slider = (
     renderNotch,
     renderRail,
     renderRailSelected,
+    ...restProps
   }
 ) => {
   const { inPropsRef, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
@@ -103,70 +103,70 @@ const Slider = (
   const labelContainerProps = useLabelContainerProps(floatingLabel);
 
   const { panHandlers } = useMemo(() => PanResponder.create({
-      onStartShouldSetPanResponder: trueFunc,
-      onStartShouldSetPanResponderCapture: trueFunc,
-      onMoveShouldSetPanResponder: trueFunc,
-      onMoveShouldSetPanResponderCapture: trueFunc,
-      onPanResponderTerminationRequest: trueFunc,
-      onPanResponderTerminate: trueFunc,
-      onShouldBlockNativeResponder: trueFunc,
+    onStartShouldSetPanResponder: trueFunc,
+    onStartShouldSetPanResponderCapture: trueFunc,
+    onMoveShouldSetPanResponder: trueFunc,
+    onMoveShouldSetPanResponderCapture: trueFunc,
+    onPanResponderTerminationRequest: trueFunc,
+    onPanResponderTerminate: trueFunc,
+    onShouldBlockNativeResponder: trueFunc,
 
-      onPanResponderGrant: ({ nativeEvent }, gestureState) => {
-        const { numberActiveTouches } = gestureState;
-        if (numberActiveTouches > 1) {
+    onPanResponderGrant: ({ nativeEvent }, gestureState) => {
+      const { numberActiveTouches } = gestureState;
+      if (numberActiveTouches > 1) {
+        return;
+      }
+      setPressed(true);
+      const { current: lowThumbX } = lowThumbXRef;
+      const { current: highThumbX } = highThumbXRef;
+      const { locationX: downX, pageX } = nativeEvent;
+      const containerX = pageX - downX;
+
+      const { low, high, min, max } = inPropsRef.current;
+      const containerWidth = containerWidthRef.current;
+
+      const lowPosition = thumbWidth / 2 + (low - min) / (max - min) * (containerWidth - thumbWidth);
+      const highPosition = thumbWidth / 2 + (high - min) / (max - min) * (containerWidth - thumbWidth);
+
+      const isLow = disableRange || isLowCloser(downX, lowPosition, highPosition);
+      gestureStateRef.current.isLow = isLow;
+
+      const handlePositionChange = positionInView => {
+        const { low, high, min, max, step } = inPropsRef.current;
+        const minValue = isLow ? min : low;
+        const maxValue = isLow ? high : max;
+        const value = clamp(getValueForPosition(positionInView, containerWidth, thumbWidth, min, max, step), minValue, maxValue);
+        if (gestureStateRef.current.lastValue === value) {
           return;
         }
-        setPressed(true);
-        const { current: lowThumbX } = lowThumbXRef;
-        const { current: highThumbX } = highThumbXRef;
-        const { locationX: downX, pageX } = nativeEvent;
-        const containerX = pageX - downX;
+        const availableSpace = containerWidth - thumbWidth;
+        const absolutePosition = (value - min) / (max - min) * availableSpace;
+        gestureStateRef.current.lastValue = value;
+        gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
+        (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
+        onValueChanged(isLow ? value : low, isLow ? high : value);
+        (isLow ? setLow : setHigh)(value);
+        labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
+        notchUpdate && notchUpdate(gestureStateRef.current.lastPosition, value);
+        updateSelectedRail();
+      };
+      handlePositionChange(downX);
+      pointerX.removeAllListeners();
+      pointerX.addListener(({ value: pointerPosition }) => {
+        const positionInView = pointerPosition - containerX;
+        handlePositionChange(positionInView);
+      });
+    },
 
-        const { low, high, min, max } = inPropsRef.current;
-        const containerWidth = containerWidthRef.current;
+    onPanResponderMove: Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
 
-        const lowPosition = thumbWidth / 2 + (low - min) / (max - min) * (containerWidth - thumbWidth);
-        const highPosition = thumbWidth / 2 + (high - min) / (max - min) * (containerWidth - thumbWidth);
-
-        const isLow = disableRange || isLowCloser(downX, lowPosition, highPosition);
-        gestureStateRef.current.isLow = isLow;
-
-        const handlePositionChange = positionInView => {
-          const { low, high, min, max, step } = inPropsRef.current;
-          const minValue = isLow ? min : low;
-          const maxValue = isLow ? high : max;
-          const value = clamp(getValueForPosition(positionInView, containerWidth, thumbWidth, min, max, step), minValue, maxValue);
-          if (gestureStateRef.current.lastValue === value) {
-            return;
-          }
-          const availableSpace = containerWidth - thumbWidth;
-          const absolutePosition = (value - min) / (max - min) * availableSpace;
-          gestureStateRef.current.lastValue = value;
-          gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
-          (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
-          onValueChanged(isLow ? value : low, isLow ? high : value);
-          (isLow ? setLow : setHigh)(value);
-          labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
-          notchUpdate && notchUpdate(gestureStateRef.current.lastPosition, value);
-          updateSelectedRail();
-        };
-        handlePositionChange(downX);
-        pointerX.removeAllListeners();
-        pointerX.addListener(({ value: pointerPosition }) => {
-          const positionInView = pointerPosition - containerX;
-          handlePositionChange(positionInView);
-        });
-      },
-
-      onPanResponderMove: Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
-
-      onPanResponderRelease: () => {
-        setPressed(false);
-      },
-    }), [pointerX, inPropsRef, thumbWidth, disableRange, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
+    onPanResponderRelease: () => {
+      setPressed(false);
+    },
+  }), [pointerX, inPropsRef, thumbWidth, disableRange, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
 
   return (
-    <View style={style}>
+    <View {...restProps}>
       <View {...labelContainerProps}>
         {labelView}
         {notchView}
