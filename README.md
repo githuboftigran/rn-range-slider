@@ -1,53 +1,61 @@
 # RangeSlider
-A fully customizable high quality react native Slider component backed by custom native iOS and Android views with ability to select range of values.
+A highly optimized and fully customizable pure JS component for value range selection.
+
+The component is not re-rendered while user moves the thumb.<br/>
+Even if there is a label, only the label component is re-rendered when values are changed.
+
+RangeSlider uses React Native's Animated library to transform thumbs / label / selected rail.<br/>
+These optimizations help to achieve as much native look & feel as possible using only the JS layer.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/githuboftigran/rn-range-slider/master/demo.gif" width="298" height="176">
+<img src="https://raw.githubusercontent.com/githuboftigran/rn-range-slider/master/demo.gif" width="369" height="195">
 </p>
 
-<p align="center">
-<a href="https://github.com/githuboftigran/rn-widgets-demo">Demo app</a>
-</p>
+#### Version 1
+The version 1 was using native Android and iOS views.<br/>
+That gives native look & feel in favor of flexibility.<br/>
+You can find the version 1 [here](https://github.com/githuboftigran/rn-range-slider/tree/v1).
 
 ## Installation
 
-1. Add
-
-   * npm: `npm install --save rn-range-slider`
-   * yarn: `yarn add rn-range-slider`
-
-2. Linking
-
-##### For older React native versions ( < 0.60 ) you need to link the library: 
-
-   - Run `react-native link  rn-range-slider`
-   - If linking fails, follow the
-     [manual linking steps](https://facebook.github.io/react-native/docs/linking-libraries-ios.html#manual-linking)
-
-##### For newer React native versions ( >= 0.60 ) you need to install pods for iOS:
-   - cd ios && pod install && cd ..
-   - For android everything works out of the box
+* npm: `npm install --save rn-range-slider`
+* yarn: `yarn add rn-range-slider`
 
 ## Usage
 
-```RangeSlider``` should have fixed width and height.
+RangeSlider uses react hooks, so this component doesn't work with React Native versions below 0.59.0
 
 ```
+...
+
 import RangeSlider from 'rn-range-slider';
 
 ...
 
-<RangeSlider
-    style={{width: 160, height: 80}}
-    gravity={'center'}
-    min={200}
-    max={1000}
-    step={20}
-    selectionColor="#3df"
-    blankColor="#f618"
-    onValueChanged={(low, high, fromUser) => {
-        this.setState({rangeLow: low, rangeHigh: high})
-    }}/>
+const renderThumb = useCallback(() => <Thumb/>, []);
+const renderRail = useCallback(() => <Rail/>, []);
+const renderRailSelected = useCallback(() => <RailSelected/>, []);
+const renderLabel = useCallback(value => <Label text={value}/>, []);
+const renderNotch = useCallback(() => <Notch/>, []);
+const handleValueChange = useCallback((low, high) => {
+  setLow(low);
+  setHigh(high);
+}, []);
+
+...
+
+<Slider
+  style={styles.slider}
+  min={0}
+  max={100}
+  step={1}
+  floatingLabel
+  renderThumb={renderThumb}
+  renderRail={renderRail}
+  renderRailSelected={renderRailSelected}
+  renderLabel={renderLabel}
+  renderNotch={renderNotch}
+  onValueChanged={handleValueChange}
 />
 
 ...
@@ -55,89 +63,28 @@ import RangeSlider from 'rn-range-slider';
 
 ### Properties
 
-Supported color formats are: **#RGB**, **#RGBA**, **#RRGGBB**, **#RRGGBBAA**
-
 
 | Name |      Description      | Type | Default Value |
-|----------|-----------------------|------|:-------------:|
-| disabled | If true user won't be able to move the slider | Boolean | **false** |
-| rangeEnabled | Slider works as an ordinary slider with 1 control if false | Boolean | **true** |
-| valueType | Type of slider values | String<br/><br/>Currently supported values:<br/>- **number**<br/>- **time** | **number** |
-| lineWidth | Width of slider's line | Number | **4** |
-| thumbRadius |  Radius of thumb (including border) | Number | **10** |
-| thumbBorderWidth |  Border width of thumb | Number | **2** |
-| textSize |  Size of label text | Number | **16** |
-| labelBorderWidth |  Border width of label | Number | **2** |
-| labelPadding |  Padding of label (distance between border and text) | Number | **4** |
-| labelBorderRadius |  Border radius of label bubble | Number | **4** |
-| labelTailHeight | Height of label bubble's tail | Number | **8** |
-| labelGapHeight |  Gap between label and slider | Number | **4** |
-| textFormat |  This string will be formatted with active value and shown in thumb.<br/>If `valueType` is set to **time** this prop will be considered as date formatter.<br/>Since this library uses native components and everything is rendered at native side, time on label text will be formatted by [`NSDateFormatter`](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/DataFormatting/Articles/dfDateFormatting10_4.html) for iOS and [`SimpleDateFormat`](https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html) for Android, so make sure you are passing valid format for both platforms. | String<br/>**"Price: %d**" =><br/>"**Price: 75**"<br/>if the current value is 75 | **%d**<br/> (just the number) |
-| labelStyle |  Style of the label.<br/>Label is not shown if **none** | String<br/><br/>Currently supported values:<br/>- **none**<br/>- **bubble** | **bubble** |
-| gravity | Vertical gravity of drawn content | String<br/><br/>Currently supported values:<br/>- **top**<br/>- **bottom**<br/>- **center** | **top** |
-| selectionColor |  Color of selected part | String | **#4286f4** |
-| blankColor |  Color of unselected part | String | **#ffffff7f** |
-| thumbColor |  Color of thumb | String | **#ffffff** |
-| thumbBorderColor |  Color of thumb's border | String | **#cccccc** |
-| labelBackgroundColor |  Color label's background | String | **#ff60ad** |
-| labelBorderColor |  Color label's border | String | **#d13e85** |
-| labelTextColor |  Color label's text | String | **#ffffff** |
-| step |  Step of slider. If `valueType` is set to **time**, this prop wil considered as milliseconds. | Number | **1** |
+| --- | --- | --- | :-------------: |
+| `min` |  Minimum value of slider | number | _**required**_ |
+| `max` |  Maximum value of slider | number | _**required**_ |
+| `step` |  Step of slider | number | `1` |
+| `low` |  Low value of slider | number | Initially `min` value will be set if not provided |
+| `high` |  High value of slider | number | Initially `max` value will be set if not provided |
+| `floatingLabel` |  If set to `true`, labels will not take space in component tree. Instead they will be rendered over the content above the slider (like a small popup). | boolean | `false` |
+| `disableRange` | Slider works as an ordinary slider with 1 control if `true` | boolean | `false` |
+| `allowLabelOverflow` | If set to `true`, labels are allowed to be drawn outside of slider component's bounds.<br/>Otherwise label's edges will never get out of component's edges. | boolean | `false` |
+| `renderThumb` | Should render the thumb. | `() => Node` | _**required**_ |
+| `renderRail` | Should render the "rail" for thumbs.<br/>Rendered component **should** have `flex: 1` style so it won't fill up the whole space. | `() => Node` | _**required**_ |
+| `renderRailSelected` | Should render the selected part of "rail" for thumbs.<br/>Rendered component **should not** have `flex: 1` style so it fills up the whole space. | `() => Node` | _**required**_ |
+| `renderLabel` | Should render label above thumbs.<br/>If no function is passed, no label will be drawn. | `(value: number) => Node` | `undefined` |
+| `renderNotch` | Should render the notch below the label (above the thumbs).<br/>Classic notch is a small triangle below the label.<br/>If `allowLabelOverflow` is not set to true, the notch will continue moving with thumb even if the label has already reached the edge of the component and can't move further.| `() => Node` | `undefined` |
+| `onValueChanged` | Will be called when a value was changed.<br/>If `disableRange` is set to true, the second argument should be ignored. | `(low: number, high: number) => void` | `undefined` |
 
-Props below may have different types depending on `valueType` prop.<br/>
-If `valueType` is set to **number**, these props should be `Number`s (integer).<br/>
-If `valueType` is set to **time**, these props may be `Number` (integer) or `Date` and if a `Number` is passed the value will be considered as timestamp.
+## A special section about permanent labels.
 
-| Name |      Description      | Type | Default Value |
-|----------|-----------------------|------|:-------------:|
-| min |  Minimum value of slider | Depends on `valueType` | **0** |
-| max |  Maximum value of slider | Depends on `valueType` | **100** |
-| initialLowValue |  Initial value of lower thumb | Depends on `valueType` | **0** |
-| initialHighValue |  Initial value of higher thumb | Depends on `valueType` | **100** |
-
-<br/>
-
-If `initialLowValue` ( or `initialHighValue`) is not provided, it's set to `min` (or `max`).
-
-### Methods
-
-To call methods of ```RangeSlider``` you need to have a reference to it's instance.<br/>
-React native provides 2 ways to do it:
-
-```
-...
-<RangeSlider ref="_rangeSlider" />
-...
-this.refs._rangeSlider.setLowValue(42);
-...
-```
-
-or
-
-```
-...
-<RangeSlider ref={ component => this._rangeSlider = component } />
-...
-this._rangeSlider.setLowValue(42);
-...
-```
-
-#### Available methods
-
-| Name |      Description      | Params |
-|---|---|---|
-| setLowValue | Set low value of slider | value: `Number` (or Date, if `valueType` is set to **time**) |
-| setHighValue | Set high value of slider | value: `Number` (or Date, if `valueType` is set to **time**) |
-
-### Callbacks
-
-| Name |      Description    | Params |
-|----------|---------------------|--------|
-| onValueChanged | A callback to be called when value was changed.<br/><br/>Type of _lowValue_ and _highValue_ will be `Number` if `valueType` is **number** and `Date` if `valueType` is **time**<br/><br/>_fromUser_ parameter is true if the value was changed because of user's interaction (not by calling __setLowValue__ or __setHighValue__ methods). Just like android's [OnSeekbarChangeListener](https://developer.android.com/reference/android/widget/SeekBar.OnSeekBarChangeListener). | lowValue: number<br/><br/>highValue: number<br/><br/>fromUser: boolean |
-| onTouchStart | Nothing to explain I think :) | - |
-| onTouchEnd | Nothing to explain here too | - |
-
-
-## Known issues
-* Label's corner radius is not working on iOS
-* Problems with expo (won't fix as I don't take Expo seriously)
+The label of active thumb is a hint for a user. It's not showing selected values permanently.
+It's a bad UI and UX to have a data for user in a moving label.
+If you need to show current selected values to the user, add Text components to some static place in the screen and set the text based on selected low and high values.
+I didn't and won't add that functionality to this component.
+Any issues about this will be closed immediately.

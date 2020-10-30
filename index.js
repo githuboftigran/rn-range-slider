@@ -1,152 +1,220 @@
-import React, {PureComponent} from 'react';
-import {requireNativeComponent} from 'react-native';
-import PropTypes from 'prop-types'
+import React, { memo, useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Animated, PanResponder, View, ViewPropTypes } from 'react-native';
+import PropTypes from 'prop-types';
 
-const noop = () => {}
+import styles from './styles';
+import {useThumbFollower, useLowHigh, useWidthLayout, useLabelContainerProps, useSelectedRail} from './hooks';
+import {clamp, getValueForPosition, isLowCloser} from './helpers';
 
-const NativeRangeSlider = requireNativeComponent('RangeSlider');
+const trueFunc = () => true;
+const noop = () => {};
 
-const dateToTimeStamp = date => date instanceof Date ? date.getTime() : date;
+const Slider = (
+  {
+    style,
+    min,
+    max,
+    step,
+    low: lowProp,
+    high: highProp,
+    floatingLabel,
+    allowLabelOverflow,
+    disableRange,
+    onValueChanged,
+    renderThumb,
+    renderLabel,
+    renderNotch,
+    renderRail,
+    renderRailSelected,
+  }
+) => {
+  const { inPropsRef, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
+  const lowThumbXRef = useRef(new Animated.Value(0));
+  const highThumbXRef = useRef(new Animated.Value(0));
+  const pointerX = useRef(new Animated.Value(0)).current;
+  const { current: lowThumbX } = lowThumbXRef;
+  const { current: highThumbX } = highThumbXRef;
 
-class RangeSlider extends PureComponent {
+  const gestureStateRef = useRef({ isLow: true, lastValue: 0, lastPosition: 0 });
+  const [isPressed, setPressed] = useState(false);
 
-    _handleValueChange = ({nativeEvent}) => {
-        const { onValueChanged, valueType } = this.props
-        let { lowValue, highValue, fromUser } = nativeEvent;
-        if (valueType === 'time') {
-            lowValue = new Date(lowValue);
-            highValue = new Date(highValue);
-        }
-        onValueChanged && onValueChanged(lowValue, highValue, fromUser);
+  const containerWidthRef = useRef(0);
+  const [thumbWidth, setThumbWidth] = useState(0);
+
+  const [selectedRailStyle, updateSelectedRail] = useSelectedRail(inPropsRef, containerWidthRef, thumbWidth, disableRange);
+
+  const updateThumbs = useCallback(() => {
+    const { current: containerWidth } = containerWidthRef;
+    if (!thumbWidth || !containerWidth) {
+      return;
     }
-
-    _handleTouchStart = ({nativeEvent}) => {
-        const { onTouchStart } = this.props;
-        onTouchStart && onTouchStart();
+    const { low, high } = inPropsRef.current;
+    if (!disableRange) {
+      const { current: highThumbX } = highThumbXRef;
+      const highPosition = (high - min) / (max - min) * (containerWidth - thumbWidth);
+      highThumbX.setValue(highPosition);
     }
+    const { current: lowThumbX } = lowThumbXRef;
+    const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
+    lowThumbX.setValue(lowPosition);
+    updateSelectedRail();
+    onValueChanged(low, high);
+  }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
 
-    _handleTouchEnd = ({nativeEvent}) => {
-        const { onTouchEnd } = this.props;
-        onTouchEnd && onTouchEnd();
+  useEffect(() => {
+    const { low, high } = inPropsRef.current;
+    if ((lowProp !== undefined && lowProp !== low) || (highProp !== undefined && highProp !== high)) {
+      updateThumbs();
     }
+  }, [highProp, inPropsRef, lowProp]);
 
-    render() {
-        let { valueType, initialHighValue, initialLowValue, min, max, step } = this.props;
-        if (initialLowValue === undefined) {
-            initialLowValue = min;
-        }
-        if (initialHighValue === undefined) {
-            initialHighValue = max;
-        }
+  useEffect(() => {
+    updateThumbs();
+  }, [updateThumbs]);
 
-        if (valueType === 'time') {
-            initialHighValue = dateToTimeStamp(initialHighValue);
-            initialLowValue = dateToTimeStamp(initialLowValue);
-            min = dateToTimeStamp(min);
-            max = dateToTimeStamp(max);
-        }
+  const handleContainerLayout = useWidthLayout(containerWidthRef, updateThumbs);
+  const handleThumbLayout = useCallback(({ nativeEvent }) => {
+    const { layout: {width}} = nativeEvent;
+    if (thumbWidth !== width) {
+      setThumbWidth(width);
+    }
+  }, [thumbWidth]);
 
-        const sliderProps = {
-            ...this.props,
-            initialLowValue: String(initialLowValue),
-            initialHighValue: String(initialHighValue),
-            min: String(min),
-            max: String(max),
-            step: String(step),
+  const lowStyles = useMemo(() => {
+    return {transform: [{translateX: lowThumbX}]};
+  }, [lowThumbX]);
+
+  const highStyles = useMemo(() => {
+    return disableRange ? null : [
+      styles.highThumbContainer,
+      {transform: [{translateX: highThumbX}]},
+    ];
+  }, [disableRange, highThumbX]);
+
+  const railContainerStyles = useMemo(() => {
+    return [styles.railsContainer, { marginHorizontal: thumbWidth / 2 }];
+  }, [thumbWidth]);
+
+  const [labelView, labelUpdate] = useThumbFollower(containerWidthRef, gestureStateRef, renderLabel, isPressed, allowLabelOverflow);
+  const [notchView, notchUpdate] = useThumbFollower(containerWidthRef, gestureStateRef, renderNotch, isPressed, allowLabelOverflow);
+  const lowThumb = renderThumb();
+  const highThumb = renderThumb();
+
+  const labelContainerProps = useLabelContainerProps(floatingLabel);
+
+  const { panHandlers } = useMemo(() => PanResponder.create({
+      onStartShouldSetPanResponder: trueFunc,
+      onStartShouldSetPanResponderCapture: trueFunc,
+      onMoveShouldSetPanResponder: trueFunc,
+      onMoveShouldSetPanResponderCapture: trueFunc,
+      onPanResponderTerminationRequest: trueFunc,
+      onPanResponderTerminate: trueFunc,
+      onShouldBlockNativeResponder: trueFunc,
+
+      onPanResponderGrant: ({ nativeEvent }, gestureState) => {
+        const { numberActiveTouches } = gestureState;
+        if (numberActiveTouches > 1) {
+          return;
+        }
+        setPressed(true);
+        const { current: lowThumbX } = lowThumbXRef;
+        const { current: highThumbX } = highThumbXRef;
+        const { locationX: downX, pageX } = nativeEvent;
+        const containerX = pageX - downX;
+
+        const { low, high, min, max } = inPropsRef.current;
+        const containerWidth = containerWidthRef.current;
+
+        const lowPosition = thumbWidth / 2 + (low - min) / (max - min) * (containerWidth - thumbWidth);
+        const highPosition = thumbWidth / 2 + (high - min) / (max - min) * (containerWidth - thumbWidth);
+
+        const isLow = disableRange || isLowCloser(downX, lowPosition, highPosition);
+        gestureStateRef.current.isLow = isLow;
+
+        const handlePositionChange = positionInView => {
+          const { low, high, min, max, step } = inPropsRef.current;
+          const minValue = isLow ? min : low;
+          const maxValue = isLow ? high : max;
+          const value = clamp(getValueForPosition(positionInView, containerWidth, thumbWidth, min, max, step), minValue, maxValue);
+          if (gestureStateRef.current.lastValue === value) {
+            return;
+          }
+          const availableSpace = containerWidth - thumbWidth;
+          const absolutePosition = (value - min) / (max - min) * availableSpace;
+          gestureStateRef.current.lastValue = value;
+          gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
+          (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
+          onValueChanged(isLow ? value : low, isLow ? high : value);
+          (isLow ? setLow : setHigh)(value);
+          labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
+          notchUpdate && notchUpdate(gestureStateRef.current.lastPosition, value);
+          updateSelectedRail();
         };
-        return <NativeRangeSlider
-        {...sliderProps}
-        ref={component => this._slider = component}
-        onValueChanged={this._handleValueChange}
-        onSliderTouchStart={this._handleTouchStart}
-        onSliderTouchEnd={this._handleTouchEnd}
-        />
-    }
+        handlePositionChange(downX);
+        pointerX.removeAllListeners();
+        pointerX.addListener(({ value: pointerPosition }) => {
+          const positionInView = pointerPosition - containerX;
+          handlePositionChange(positionInView);
+        });
+      },
 
-    setHighValue = value => {
-        const { valueType } = this.props;
-        if (valueType === 'time') {
-            value = dateToTimeStamp(value);
+      onPanResponderMove: Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
+
+      onPanResponderRelease: () => {
+        setPressed(false);
+      },
+    }), [pointerX, inPropsRef, thumbWidth, disableRange, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
+
+  return (
+    <View style={style}>
+      <View {...labelContainerProps}>
+        {labelView}
+        {notchView}
+      </View>
+      <View onLayout={handleContainerLayout} style={styles.controlsContainer}>
+        <View style={railContainerStyles}>
+          {renderRail()}
+          <Animated.View style={selectedRailStyle}>
+            {renderRailSelected()}
+          </Animated.View>
+        </View>
+        <Animated.View style={lowStyles} onLayout={handleThumbLayout}>
+          {lowThumb}
+        </Animated.View>
+        {
+          !disableRange && <Animated.View style={highStyles}>
+            {highThumb}
+          </Animated.View>
         }
-        this._slider.setNativeProps({ highValue: String(value) });
-    }
+        <View { ...panHandlers } style={styles.touchableArea} collapsable={false}/>
+      </View>
+    </View>
+  );
+};
 
-    setLowValue = value => {
-        const { valueType } = this.props;
-        if (valueType === 'time') {
-            value = dateToTimeStamp(value);
-        }
-        this._slider.setNativeProps({ lowValue: String(value) });
-    }
-}
+Slider.propTypes = {
+  ...ViewPropTypes,
+  min: PropTypes.number.isRequired,
+  max: PropTypes.number.isRequired,
+  step: PropTypes.number.isRequired,
+  renderThumb: PropTypes.func.isRequired,
+  low: PropTypes.number,
+  high: PropTypes.number,
+  allowLabelOverflow: PropTypes.bool,
+  disableRange: PropTypes.bool,
+  floatingLabel: PropTypes.bool,
+  renderLabel: PropTypes.func,
+  renderNotch: PropTypes.func,
+  renderRail: PropTypes.func.isRequired,
+  renderRailSelected: PropTypes.func.isRequired,
+  onValueChanged: PropTypes.func,
+};
 
-const numberOrDate = PropTypes.oneOfType([
-    PropTypes.number,
-    PropTypes.instanceOf(Date),
-]);
+Slider.defaultProps = {
+  allowLabelOverflow: false,
+  disableRange: false,
+  floatingLabel: false,
+  onValueChanged: noop,
+};
 
-RangeSlider.propTypes = {
-    rangeEnabled: PropTypes.bool,
-    disabled: PropTypes.bool,
-    valueType: PropTypes.oneOf(['number', 'time']),
-    gravity: PropTypes.oneOf(['top', 'bottom', 'center']),
-    min: numberOrDate,
-    max: numberOrDate,
-    step: numberOrDate,
-    initialLowValue: numberOrDate,
-    initialHighValue: numberOrDate,
-    lineWidth: PropTypes.number,
-    thumbRadius: PropTypes.number,
-    thumbBorderWidth: PropTypes.number,
-    labelStyle: PropTypes.oneOf(['none', 'bubble']),
-    labelGapHeight: PropTypes.number,
-    labelTailHeight: PropTypes.number,
-    labelFontSize: PropTypes.number,
-    labelBorderWidth: PropTypes.number,
-    labelPadding: PropTypes.number,
-    labelBorderRadius: PropTypes.number,
-    textFormat: PropTypes.string,
-    blankColor: PropTypes.string,
-    selectionColor: PropTypes.string,
-    thumbColor: PropTypes.string,
-    thumbBorderColor: PropTypes.string,
-    labelTextColor: PropTypes.string,
-    labelBackgroundColor: PropTypes.string,
-    labelBorderColor: PropTypes.string,
-    onTouchStart: PropTypes.func,
-    onTouchEnd: PropTypes.func,
-    onValueChanged: PropTypes.func,
-}
-
-RangeSlider.defaultProps = {
-    rangeEnabled: true,
-    disabled: false,
-    valueType: 'number',
-    gravity: 'top',
-    min: 0,
-    max: 100,
-    step: 1,
-    lineWidth: 4,
-    thumbRadius: 10,
-    thumbBorderWidth: 2,
-    labelStyle: 'bubble',
-    labelGapHeight: 4,
-    labelTailHeight: 8,
-    labelFontSize: 16,
-    labelBorderWidth: 2,
-    labelPadding: 4,
-    labelBorderRadius: 4,
-    textFormat: '%d',
-    blankColor: '#ffffff7f',
-    selectionColor: '#4286f4',
-    thumbColor: '#ffffff',
-    thumbBorderColor: '#cccccc',
-    labelTextColor: '#ffffff',
-    labelBackgroundColor: '#ff60ad',
-    labelBorderColor: '#d13e85',
-    onTouchStart: noop,
-    onTouchEnd: noop,
-    onValueChanged: noop,
-}
-
-export default RangeSlider
+export default memo(Slider);
