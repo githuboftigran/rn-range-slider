@@ -1,7 +1,10 @@
 export const isLowCloser = (downX, lowPosition, highPosition) => {
+  if (lowPosition === highPosition) {
+    return downX < lowPosition;
+  }
   const distanceFromLow = Math.abs(downX - lowPosition);
   const distanceFromHigh = Math.abs(downX - highPosition);
-  return distanceFromLow <= distanceFromHigh;
+  return distanceFromLow < distanceFromHigh;
 };
 
 export const clamp = (value, min, max) => {
