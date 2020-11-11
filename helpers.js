@@ -17,5 +17,5 @@ export const getValueForPosition = (positionInView, containerWidth, thumbWidth, 
   if (relOffset / relStepUnit >= 0.5) {
     relPosition += relStepUnit;
   }
-  return clamp(Math.round(min + relPosition / relStepUnit) * step, min, max);
+  return clamp(min + Math.round(relPosition / relStepUnit) * step, min, max);
 };
