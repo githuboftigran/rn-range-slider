@@ -19,6 +19,7 @@ const Slider = (
     floatingLabel,
     allowLabelOverflow,
     disableRange,
+    disabled,
     onValueChanged,
     renderThumb,
     renderLabel,
@@ -58,7 +59,7 @@ const Slider = (
     const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
     updateSelectedRail();
-    onValueChanged(low, high);
+    onValueChanged(low, high, false);
   }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
 
   useEffect(() => {
@@ -112,6 +113,9 @@ const Slider = (
     onShouldBlockNativeResponder: trueFunc,
 
     onPanResponderGrant: ({ nativeEvent }, gestureState) => {
+      if (disabled) {
+        return;
+      }
       const { numberActiveTouches } = gestureState;
       if (numberActiveTouches > 1) {
         return;
@@ -144,7 +148,7 @@ const Slider = (
         gestureStateRef.current.lastValue = value;
         gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
         (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
-        onValueChanged(isLow ? value : low, isLow ? high : value);
+        onValueChanged(isLow ? value : low, isLow ? high : value, true);
         (isLow ? setLow : setHigh)(value);
         labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
         notchUpdate && notchUpdate(gestureStateRef.current.lastPosition, value);
@@ -158,12 +162,12 @@ const Slider = (
       });
     },
 
-    onPanResponderMove: Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
+    onPanResponderMove: disabled ? undefined : Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
 
     onPanResponderRelease: () => {
       setPressed(false);
     },
-  }), [pointerX, inPropsRef, thumbWidth, disableRange, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
+  }), [pointerX, inPropsRef, thumbWidth, disableRange, disabled, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
 
   return (
     <View {...restProps}>
@@ -202,6 +206,7 @@ Slider.propTypes = {
   high: PropTypes.number,
   allowLabelOverflow: PropTypes.bool,
   disableRange: PropTypes.bool,
+  disabled: PropTypes.bool,
   floatingLabel: PropTypes.bool,
   renderLabel: PropTypes.func,
   renderNotch: PropTypes.func,
@@ -213,6 +218,7 @@ Slider.propTypes = {
 Slider.defaultProps = {
   allowLabelOverflow: false,
   disableRange: false,
+  disabled: false,
   floatingLabel: false,
   onValueChanged: noop,
 };
