@@ -29,7 +29,7 @@ const Slider = (
     ...restProps
   }
 ) => {
-  const { inPropsRef, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
+  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
   const lowThumbXRef = useRef(new Animated.Value(0));
   const highThumbXRef = useRef(new Animated.Value(0));
   const pointerX = useRef(new Animated.Value(0)).current;
@@ -63,11 +63,11 @@ const Slider = (
   }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
 
   useEffect(() => {
-    const { low, high } = inPropsRef.current;
-    if ((lowProp !== undefined && lowProp !== low) || (highProp !== undefined && highProp !== high)) {
+    const { lowPrev, highPrev } = inPropsRefPrev;
+    if ((lowProp !== undefined && lowProp !== lowPrev) || (highProp !== undefined && highProp !== highPrev)) {
       updateThumbs();
     }
-  }, [highProp, inPropsRef, lowProp]);
+  }, [highProp, inPropsRefPrev.lowPrev, inPropsRefPrev.highPrev, lowProp]);
 
   useEffect(() => {
     updateThumbs();

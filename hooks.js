@@ -23,6 +23,7 @@ export const useLowHigh = (lowProp, highProp, min, max, step) => {
   const validHighProp = highProp === undefined ? max : clamp(highProp, min, max);
   const inPropsRef = useRef({ low: validLowProp, high: validHighProp });
   const { low: lowState, high: highState } = inPropsRef.current;
+  const inPropsRefPrev = { lowPrev: lowState, highPrev: highState };
 
   // Props have higher priority.
   // If no props are passed, use internal state variables.
@@ -34,7 +35,7 @@ export const useLowHigh = (lowProp, highProp, min, max, step) => {
 
   const setLow = value => inPropsRef.current.low = value;
   const setHigh = value => inPropsRef.current.high = value;
-  return { inPropsRef, setLow, setHigh };
+  return { inPropsRef, inPropsRefPrev, setLow, setHigh };
 };
 
 /**
