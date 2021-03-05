@@ -26,6 +26,8 @@ const Slider = (
     renderNotch,
     renderRail,
     renderRailSelected,
+    onTouchStart,
+    onTouchEnd,
     ...restProps
   }
 ) => {
@@ -120,6 +122,7 @@ const Slider = (
       if (numberActiveTouches > 1) {
         return;
       }
+      onTouchStart();
       setPressed(true);
       const { current: lowThumbX } = lowThumbXRef;
       const { current: highThumbX } = highThumbXRef;
@@ -165,6 +168,7 @@ const Slider = (
     onPanResponderMove: disabled ? undefined : Animated.event([null, { moveX: pointerX }], { useNativeDriver: false }),
 
     onPanResponderRelease: () => {
+      onTouchEnd();
       setPressed(false);
     },
   }), [pointerX, inPropsRef, thumbWidth, disableRange, disabled, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
@@ -213,6 +217,8 @@ Slider.propTypes = {
   renderRail: PropTypes.func.isRequired,
   renderRailSelected: PropTypes.func.isRequired,
   onValueChanged: PropTypes.func,
+  onTouchStart: PropTypes.func,
+  onTouchEnd: PropTypes.func,
 };
 
 Slider.defaultProps = {
@@ -221,6 +227,8 @@ Slider.defaultProps = {
   disabled: false,
   floatingLabel: false,
   onValueChanged: noop,
+  onTouchStart: noop,
+  onTouchEnd: noop,
 };
 
 export default memo(Slider);
