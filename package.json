@@ -1,6 +1,6 @@
 {
   "name": "rn-range-slider",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "author": "Tigran Sahakyan <mail.of.tigran@gmail.com>",
   "description": "A highly optimized pure JS implementation of Range Slider for React Native",
   "homepage": "https://github.com/githuboftigran/rn-range-slider",
