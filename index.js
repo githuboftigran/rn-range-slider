@@ -1,5 +1,5 @@
 import React, { memo, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Animated, PanResponder, View, ViewPropTypes } from 'react-native';
+import { Animated, I18nManager, PanResponder, View, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 
 import styles from './styles';
@@ -8,6 +8,7 @@ import {clamp, getValueForPosition, isLowCloser} from './helpers';
 
 const trueFunc = () => true;
 const noop = () => {};
+const RTL_MULTIPLIER = I18nManager.isRTL ? -1 : 1;
 
 const Slider = (
   {
@@ -53,11 +54,11 @@ const Slider = (
     if (!disableRange) {
       const { current: highThumbX } = highThumbXRef;
       const highPosition = (high - min) / (max - min) * (containerWidth - thumbWidth);
-      highThumbX.setValue(highPosition);
+      highThumbX.setValue(highPosition * RTL_MULTIPLIER);
     }
     const { current: lowThumbX } = lowThumbXRef;
     const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
-    lowThumbX.setValue(lowPosition);
+    lowThumbX.setValue(lowPosition * RTL_MULTIPLIER);
     updateSelectedRail();
     onValueChanged(low, high, false);
   }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
@@ -121,13 +122,14 @@ const Slider = (
         return;
       }
       setPressed(true);
+      const { current: containerWidth} = containerWidthRef;
       const { current: lowThumbX } = lowThumbXRef;
       const { current: highThumbX } = highThumbXRef;
-      const { locationX: downX, pageX } = nativeEvent;
-      const containerX = pageX - downX;
+      const { locationX, pageX } = nativeEvent;
+      const downX = I18nManager.isRTL ? containerWidth - locationX : locationX;
+      const containerX = pageX - downX * RTL_MULTIPLIER;
 
       const { low, high, min, max } = inPropsRef.current;
-      const containerWidth = containerWidthRef.current;
 
       const lowPosition = thumbWidth / 2 + (low - min) / (max - min) * (containerWidth - thumbWidth);
       const highPosition = thumbWidth / 2 + (high - min) / (max - min) * (containerWidth - thumbWidth);
@@ -147,7 +149,7 @@ const Slider = (
         const absolutePosition = (value - min) / (max - min) * availableSpace;
         gestureStateRef.current.lastValue = value;
         gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
-        (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
+        (isLow ? lowThumbX : highThumbX).setValue(absolutePosition * RTL_MULTIPLIER);
         onValueChanged(isLow ? value : low, isLow ? high : value, true);
         (isLow ? setLow : setHigh)(value);
         labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
@@ -157,7 +159,7 @@ const Slider = (
       handlePositionChange(downX);
       pointerX.removeAllListeners();
       pointerX.addListener(({ value: pointerPosition }) => {
-        const positionInView = pointerPosition - containerX;
+        const positionInView = (pointerPosition - containerX) * RTL_MULTIPLIER;
         handlePositionChange(positionInView);
       });
     },
