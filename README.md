@@ -70,7 +70,7 @@ const handleValueChange = useCallback((low, high) => {
 | --- | --- | --- | :-------------: |
 | `min` |  Minimum value of slider | number | _**required**_ |
 | `max` |  Maximum value of slider | number | _**required**_ |
-| `minRange` |  Minimum range of thumbs allowed to select **by the user**.<br/>It's still possible to set values closer to each other than `minRange` programmatically.<br/>If `disableRange` is set to true, maximum value allowed for user will be `max` - `minRange`. | number | `0` |
+| `minRange` |  Minimum range of thumbs allowed to be selected **by the user**.<br/>**Note:** it is still possible to set values closer to each other than `minRange` programmatically.<br/>If `disableRange` is set to true, maximum value allowed for user will be `max` - `minRange`. | number | `0` |
 | `step` |  Step of slider | number | `1` |
 | `low` |  Low value of slider | number | Initially `min` value will be set if not provided |
 | `high` |  High value of slider | number | Initially `max` value will be set if not provided |
