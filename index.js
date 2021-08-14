@@ -7,7 +7,6 @@ import {useThumbFollower, useLowHigh, useWidthLayout, useLabelContainerProps, us
 import {clamp, getValueForPosition, isLowCloser} from './helpers';
 
 const trueFunc = () => true;
-const noop = () => {};
 
 const Slider = (
   {
@@ -62,7 +61,7 @@ const Slider = (
     const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
     updateSelectedRail();
-    onValueChanged(low, high, false);
+    onValueChanged?.(low, high, false);
   }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
 
   useEffect(() => {
@@ -152,7 +151,7 @@ const Slider = (
         gestureStateRef.current.lastValue = value;
         gestureStateRef.current.lastPosition = absolutePosition + thumbWidth / 2;
         (isLow ? lowThumbX : highThumbX).setValue(absolutePosition);
-        onValueChanged(isLow ? value : low, isLow ? high : value, true);
+        onValueChanged?.(isLow ? value : low, isLow ? high : value, true);
         (isLow ? setLow : setHigh)(value);
         labelUpdate && labelUpdate(gestureStateRef.current.lastPosition, value);
         notchUpdate && notchUpdate(gestureStateRef.current.lastPosition, value);
@@ -206,6 +205,7 @@ Slider.propTypes = {
   ...ViewPropTypes,
   min: PropTypes.number.isRequired,
   max: PropTypes.number.isRequired,
+  minRange: PropTypes.number,
   step: PropTypes.number.isRequired,
   renderThumb: PropTypes.func.isRequired,
   low: PropTypes.number,
@@ -219,6 +219,8 @@ Slider.propTypes = {
   renderRail: PropTypes.func.isRequired,
   renderRailSelected: PropTypes.func.isRequired,
   onValueChanged: PropTypes.func,
+  onTouchStart: PropTypes.func,
+  onTouchEnd: PropTypes.func,
 };
 
 Slider.defaultProps = {
@@ -227,7 +229,6 @@ Slider.defaultProps = {
   disableRange: false,
   disabled: false,
   floatingLabel: false,
-  onValueChanged: noop,
 };
 
 export default memo(Slider);
