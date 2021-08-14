@@ -21,6 +21,8 @@ const Slider = (
     disableRange,
     disabled,
     onValueChanged,
+    onTouchStart,
+    onTouchEnd,
     renderThumb,
     renderLabel,
     renderNotch,
@@ -127,6 +129,7 @@ const Slider = (
       const containerX = pageX - downX;
 
       const { low, high, min, max } = inPropsRef.current;
+      onTouchStart?.(low, high);
       const containerWidth = containerWidthRef.current;
 
       const lowPosition = thumbWidth / 2 + (low - min) / (max - min) * (containerWidth - thumbWidth);
@@ -166,6 +169,8 @@ const Slider = (
 
     onPanResponderRelease: () => {
       setPressed(false);
+      const { low, high } = inPropsRef.current;
+      onTouchEnd?.(low, high);
     },
   }), [pointerX, inPropsRef, thumbWidth, disableRange, disabled, onValueChanged, setLow, setHigh, labelUpdate, notchUpdate, updateSelectedRail]);
 

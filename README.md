@@ -83,6 +83,8 @@ const handleValueChange = useCallback((low, high) => {
 | `renderLabel` | Should render label above thumbs.<br/>If no function is passed, no label will be drawn. | `(value: number) => Node` | `undefined` |
 | `renderNotch` | Should render the notch below the label (above the thumbs).<br/>Classic notch is a small triangle below the label.<br/>If `allowLabelOverflow` is not set to true, the notch will continue moving with thumb even if the label has already reached the edge of the component and can't move further.| `() => Node` | `undefined` |
 | `onValueChanged` | Will be called when a value was changed.<br/>If `disableRange` is set to true, the second argument should be ignored.<br/>`fromUser` will be true if the value was changed by user's interaction. | `(low: number, high: number, fromUser: boolean) => void` | `undefined` |
+| `onTouchStart` | Will be called when user starts interaction with slider.<br/>If `disableRange` is set to true, the second argument should be ignored. | `(low: number, high: number) => void` | `undefined` |
+| `onTouchEnd` | Will be called when user ends interaction with slider.<br/>If `disableRange` is set to true, the second argument should be ignored. | `(low: number, high: number) => void` | `undefined` |
 
 All the other props (e.g. style) will be passed to root container component.
 
