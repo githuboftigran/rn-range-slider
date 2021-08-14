@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useMemo } from 'react';
-import { Animated } from 'react-native';
+import { Animated, I18nManager } from 'react-native';
 import { clamp } from './helpers';
 import styles from './styles';
 import FollowerContainer from './LabelContainer';
@@ -119,8 +119,8 @@ export const useSelectedRail = (inPropsRef, containerWidthRef, thumbWidth, disab
   }, [inPropsRef, containerWidthRef, disableRange, thumbWidth, left, right]);
   const styles = useMemo(() => ({
     position: 'absolute',
-    left,
-    right,
+    left: I18nManager.isRTL ? right : left,
+    right: I18nManager.isRTL ? left : right,
   }), [left, right]);
   return [styles, update];
 };
