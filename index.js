@@ -13,6 +13,7 @@ const Slider = (
   {
     min,
     max,
+    minRange,
     step,
     low: lowProp,
     high: highProp,
@@ -140,8 +141,8 @@ const Slider = (
 
       const handlePositionChange = positionInView => {
         const { low, high, min, max, step } = inPropsRef.current;
-        const minValue = isLow ? min : low;
-        const maxValue = isLow ? high : max;
+        const minValue = isLow ? min : low + minRange;
+        const maxValue = isLow ? high - minRange : max;
         const value = clamp(getValueForPosition(positionInView, containerWidth, thumbWidth, min, max, step), minValue, maxValue);
         if (gestureStateRef.current.lastValue === value) {
           return;
@@ -221,6 +222,7 @@ Slider.propTypes = {
 };
 
 Slider.defaultProps = {
+  minRange: 0,
   allowLabelOverflow: false,
   disableRange: false,
   disabled: false,
