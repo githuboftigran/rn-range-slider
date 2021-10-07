@@ -28,10 +28,11 @@ const Slider = (
     renderNotch,
     renderRail,
     renderRailSelected,
+    value,
     ...restProps
   }
 ) => {
-  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
+  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(value ?? lowProp, disableRange ? max : highProp, min, max, step);
   const lowThumbXRef = useRef(new Animated.Value(0));
   const highThumbXRef = useRef(new Animated.Value(0));
   const pointerX = useRef(new Animated.Value(0)).current;
@@ -224,6 +225,7 @@ Slider.propTypes = {
   onValueChanged: PropTypes.func,
   onTouchStart: PropTypes.func,
   onTouchEnd: PropTypes.func,
+  value:PropTypes.number
 };
 
 Slider.defaultProps = {
