@@ -28,10 +28,11 @@ const Slider = (
     renderNotch,
     renderRail,
     renderRailSelected,
+    value,
     ...restProps
   }
 ) => {
-  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(lowProp, disableRange ? max : highProp, min, max, step);
+  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(value ?? lowProp, disableRange ? max : highProp, min, max, step);
   const lowThumbXRef = useRef(new Animated.Value(0));
   const highThumbXRef = useRef(new Animated.Value(0));
   const pointerX = useRef(new Animated.Value(0)).current;
@@ -47,6 +48,7 @@ const Slider = (
   const [selectedRailStyle, updateSelectedRail] = useSelectedRail(inPropsRef, containerWidthRef, thumbWidth, disableRange);
 
   const updateThumbs = useCallback(() => {
+    const { lowPrev, highPrev } = inPropsRefPrev;
     const { current: containerWidth } = containerWidthRef;
     if (!thumbWidth || !containerWidth) {
       return;
@@ -61,8 +63,10 @@ const Slider = (
     const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
     updateSelectedRail();
-    onValueChanged?.(low, high, false);
-  }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
+    if ((lowProp !== undefined && lowProp !== lowPrev) || (highProp !== undefined && highProp !== highPrev)) {
+      onValueChanged?.(low, high, false);
+    }
+  }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail,highProp, inPropsRefPrev.lowPrev, inPropsRefPrev.highPrev, lowProp]);
 
   useEffect(() => {
     const { lowPrev, highPrev } = inPropsRefPrev;
@@ -221,6 +225,7 @@ Slider.propTypes = {
   onValueChanged: PropTypes.func,
   onTouchStart: PropTypes.func,
   onTouchEnd: PropTypes.func,
+  value:PropTypes.number
 };
 
 Slider.defaultProps = {
