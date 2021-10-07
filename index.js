@@ -47,6 +47,7 @@ const Slider = (
   const [selectedRailStyle, updateSelectedRail] = useSelectedRail(inPropsRef, containerWidthRef, thumbWidth, disableRange);
 
   const updateThumbs = useCallback(() => {
+    const { lowPrev, highPrev } = inPropsRefPrev;
     const { current: containerWidth } = containerWidthRef;
     if (!thumbWidth || !containerWidth) {
       return;
@@ -61,8 +62,10 @@ const Slider = (
     const lowPosition = (low - min) / (max - min) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
     updateSelectedRail();
-    onValueChanged?.(low, high, false);
-  }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail]);
+    if ((lowProp !== undefined && lowProp !== lowPrev) || (highProp !== undefined && highProp !== highPrev)) {
+      onValueChanged?.(low, high, false);
+    }
+  }, [disableRange, inPropsRef, max, min, onValueChanged, thumbWidth, updateSelectedRail,highProp, inPropsRefPrev.lowPrev, inPropsRefPrev.highPrev, lowProp]);
 
   useEffect(() => {
     const { lowPrev, highPrev } = inPropsRefPrev;
