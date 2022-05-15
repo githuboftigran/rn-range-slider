@@ -1,5 +1,6 @@
 import React, { memo, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Animated, PanResponder, View, ViewPropTypes } from 'react-native';
+import { Animated, PanResponder, View } from 'react-native';
+import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 import PropTypes from 'prop-types';
 
 import styles from './styles';
