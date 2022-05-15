@@ -26,6 +26,7 @@
     "url": "https://github.com/githuboftigran/rn-range-slider.git"
   },
   "dependencies": {
+    "deprecated-react-native-prop-types": "^2.3.0"
   },
   "devDependencies": {
   },
