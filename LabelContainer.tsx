@@ -6,7 +6,7 @@ class LabelContainer extends PureComponent {
   state = {
     value: Number.NaN,
   };
-
+  
   setValue = value => {
     this.setState({ value });
   }

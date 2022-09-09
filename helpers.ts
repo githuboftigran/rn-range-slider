@@ -1,4 +1,8 @@
-export const isLowCloser = (downX, lowPosition, highPosition) => {
+export const isLowCloser = (
+  downX: number,
+  lowPosition: number,
+  highPosition: number,
+): boolean => {
   if (lowPosition === highPosition) {
     return downX < lowPosition;
   }
@@ -7,11 +11,18 @@ export const isLowCloser = (downX, lowPosition, highPosition) => {
   return distanceFromLow < distanceFromHigh;
 };
 
-export const clamp = (value, min, max) => {
+export const clamp = (value: number, min: number, max: number): number => {
   return Math.min(Math.max(value, min), max);
 };
 
-export const getValueForPosition = (positionInView, containerWidth, thumbWidth, min, max, step) => {
+export const getValueForPosition = (
+  positionInView: number,
+  containerWidth: number,
+  thumbWidth: number,
+  min: number,
+  max: number,
+  step: number,
+): number => {
   const availableSpace = containerWidth - thumbWidth;
   const relStepUnit = step / (max - min);
   let relPosition = (positionInView - thumbWidth / 2) / availableSpace;
