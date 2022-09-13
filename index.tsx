@@ -4,9 +4,17 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
-  useRef, ReactNode,
+  useRef,
+  ReactNode,
 } from 'react';
-import { Animated, PanResponder, View, ViewProps } from 'react-native';
+import {
+  Animated,
+  GestureResponderEvent,
+  PanResponder,
+  PanResponderGestureState,
+  View,
+  ViewProps,
+} from 'react-native';
 
 import styles from './styles';
 import {
@@ -19,6 +27,7 @@ import {
 import {clamp, getValueForPosition, isLowCloser} from './helpers';
 
 const trueFunc = () => true;
+const falseFunc = () => false;
 
 export interface SliderProps extends ViewProps {
   min: number;
@@ -179,13 +188,16 @@ const Slider: React.FC<SliderProps> = ({
   const {panHandlers} = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponder: trueFunc,
-        onStartShouldSetPanResponderCapture: trueFunc,
-        onMoveShouldSetPanResponder: trueFunc,
-        onMoveShouldSetPanResponderCapture: trueFunc,
-        onPanResponderTerminationRequest: trueFunc,
+        onStartShouldSetPanResponderCapture: falseFunc,
+        onMoveShouldSetPanResponderCapture: falseFunc,
+        onPanResponderTerminationRequest: falseFunc,
         onPanResponderTerminate: trueFunc,
         onShouldBlockNativeResponder: trueFunc,
+
+        onMoveShouldSetPanResponder: (
+          evt: GestureResponderEvent,
+          gestureState: PanResponderGestureState,
+        ) => Math.abs(gestureState.dx) > 2 * Math.abs(gestureState.dy),
 
         onPanResponderGrant: ({nativeEvent}, gestureState) => {
           if (disabled) {
@@ -245,9 +257,9 @@ const Slider: React.FC<SliderProps> = ({
             onValueChanged?.(isLow ? value : low, isLow ? high : value, true);
             (isLow ? setLow : setHigh)(value);
             labelUpdate &&
-              labelUpdate(gestureStateRef.current.lastPosition, value);
+            labelUpdate(gestureStateRef.current.lastPosition, value);
             notchUpdate &&
-              notchUpdate(gestureStateRef.current.lastPosition, value);
+            notchUpdate(gestureStateRef.current.lastPosition, value);
             updateSelectedRail();
           };
           handlePositionChange(downX);
