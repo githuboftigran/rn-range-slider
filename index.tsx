@@ -34,7 +34,7 @@ export interface SliderProps extends ViewProps {
   max: number;
   minRange?: number;
   step: number;
-  renderThumb: () => ReactNode;
+  renderThumb: (name: 'high' | 'low') => ReactNode;
   low?: number;
   high?: number;
   allowLabelOverflow?: boolean;
@@ -180,8 +180,8 @@ const Slider: React.FC<SliderProps> = ({
     isPressed,
     allowLabelOverflow,
   );
-  const lowThumb = renderThumb();
-  const highThumb = renderThumb();
+  const lowThumb = renderThumb('low');
+  const highThumb = renderThumb('high');
 
   const labelContainerProps = useLabelContainerProps(floatingLabel);
 
