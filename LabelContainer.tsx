@@ -1,25 +1,17 @@
-import React, { PureComponent } from 'react';
-import { View } from 'react-native';
+import React, { useState, ReactNode } from 'react';
+import { StyleProp, View, ViewProps } from 'react-native';
 
-class LabelContainer extends PureComponent {
-
-  state = {
-    value: Number.NaN,
-  };
-  
-  setValue = value => {
-    this.setState({ value });
-  }
-
-  render() {
-    const { renderContent, ...restProps } = this.props;
-    const { value } = this.state;
-    return (
-      <View {...restProps}>
-        {renderContent(value)}
-      </View>
-    );
-  }
+export interface Props<T> {
+  renderContent: (value: T) => ReactNode;
 }
+
+const LabelContainer = <T extends unknown>({
+  renderContent,
+  ...restProps
+}: Props<T> & StyleProp<ViewProps>) => {
+  const [value, setValue] = useState<T | typeof Number.NaN>(Number.NaN);
+
+  return <View {...restProps}>{renderContent(value)}</View>;
+};
 
 export default LabelContainer;
