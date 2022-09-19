@@ -106,7 +106,7 @@ export const useThumbFollower = (
 ) => {
   const xRef = useRef(new Animated.Value(0));
   const widthRef = useRef(0);
-  const contentContainerRef = useRef<FollowerContainer | null>(null);
+  const contentContainerRef = useRef();
 
   const {current: x} = xRef;
 
