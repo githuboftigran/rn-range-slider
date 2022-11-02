@@ -1,13 +1,17 @@
 import React, { PureComponent } from 'react';
 import { View } from 'react-native';
 
-class LabelContainer extends PureComponent {
+import type { ViewProps } from 'react-native';
+
+class LabelContainer extends PureComponent<
+  { renderContent: (value: number) => React.ReactNode } & ViewProps
+> {
 
   state = {
     value: Number.NaN,
   };
-  
-  setValue = value => {
+
+  setValue = (value: number) => {
     this.setState({ value });
   }
 
