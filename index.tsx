@@ -188,7 +188,7 @@ const Slider: React.FC<SliderProps> = ({
   const {panHandlers} = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponderCapture: falseFunc,
+        onStartShouldSetPanResponderCapture: trueFunc,
         onMoveShouldSetPanResponderCapture: falseFunc,
         onPanResponderTerminationRequest: falseFunc,
         onPanResponderTerminate: trueFunc,
