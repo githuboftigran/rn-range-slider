@@ -11,9 +11,8 @@ export const isLowCloser = (
   return distanceFromLow < distanceFromHigh;
 };
 
-export const clamp = (value: number, min: number, max: number): number => {
-  return Math.min(Math.max(value, min), max);
-};
+export const clamp = (value: number, min: number, max: number): number =>
+  Math.min(Math.max(value, min), max);
 
 export const getValueForPosition = (
   positionInView: number,
