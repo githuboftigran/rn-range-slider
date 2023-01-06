@@ -1,19 +1,20 @@
-import React, { PureComponent } from 'react';
-import { View } from 'react-native';
+import {View} from 'react-native';
+import {PureComponent} from 'react';
 
 class LabelContainer extends PureComponent {
-
   state = {
     value: Number.NaN,
   };
-  
-  setValue = value => {
-    this.setState({ value });
-  }
+
+  setValue = (value: number) => {
+    this.setState({value});
+  };
 
   render() {
-    const { renderContent, ...restProps } = this.props;
-    const { value } = this.state;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const {renderContent, ...restProps} = this.props;
+    const {value} = this.state;
     return (
       <View {...restProps}>
         {renderContent(value)}

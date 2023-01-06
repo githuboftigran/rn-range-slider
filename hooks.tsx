@@ -32,8 +32,7 @@ export const useLowHigh = (
   step: number,
 ) => {
   const validLowProp = lowProp === undefined ? min : clamp(lowProp, min, max);
-  const validHighProp =
-    highProp === undefined ? max : clamp(highProp, min, max);
+  const validHighProp = highProp === undefined ? max : clamp(highProp, min, max);
   const inPropsRef = useRef({
     low: validLowProp,
     high: validHighProp,
@@ -67,8 +66,8 @@ export const useLowHigh = (
 export const useWidthLayout = (
   widthRef: MutableRefObject<number>,
   callback?: (width: number) => void,
-) => {
-  return useCallback(
+) =>
+  useCallback(
     ({nativeEvent}) => {
       const {
         layout: {width},
@@ -83,7 +82,6 @@ export const useWidthLayout = (
     },
     [callback, widthRef],
   );
-};
 
 /**
  * This hook creates a component which follows the thumb.
@@ -138,6 +136,8 @@ export const useThumbFollower = (
   const follower = (
     <Animated.View style={[transform, {opacity: isPressed ? 1 : 0}]}>
       <FollowerContainer
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onLayout={handleLayout}
         ref={contentContainerRef}
         renderContent={renderContent}
@@ -174,7 +174,8 @@ export const useSelectedRail = (
       disableRange ? containerWidth - thumbWidth - leftValue : rightValue,
     );
   }, [inPropsRef, containerWidthRef, disableRange, thumbWidth, left, right]);
-  const styles = useMemo(
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  const styles: object = useMemo(
     () => ({
       position: 'absolute',
       left: I18nManager.isRTL ? right : left,
