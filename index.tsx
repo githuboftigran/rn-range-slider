@@ -24,7 +24,7 @@ import {
   useLabelContainerProps,
   useSelectedRail,
 } from './hooks';
-import {clamp, getValueForPosition, isLowCloser} from './helpers';
+import { clamp, getValueForPosition, isLowCloser } from './helpers';
 
 const trueFunc = () => true;
 const falseFunc = () => false;
@@ -71,20 +71,24 @@ const Slider: React.FC<SliderProps> = ({
   renderRailSelected,
   ...restProps
 }) => {
-  const {inPropsRef, inPropsRefPrev, setLow, setHigh} = useLowHigh(
+  const { inPropsRef, inPropsRefPrev, setLow, setHigh } = useLowHigh(
     lowProp,
     disableRange ? max : highProp,
     min,
     max,
-    step,
+    step
   );
   const lowThumbXRef = useRef(new Animated.Value(0));
   const highThumbXRef = useRef(new Animated.Value(0));
   const pointerX = useRef(new Animated.Value(0)).current;
-  const {current: lowThumbX} = lowThumbXRef;
-  const {current: highThumbX} = highThumbXRef;
+  const { current: lowThumbX } = lowThumbXRef;
+  const { current: highThumbX } = highThumbXRef;
 
-  const gestureStateRef = useRef({isLow: true, lastValue: 0, lastPosition: 0});
+  const gestureStateRef = useRef({
+    isLow: true,
+    lastValue: 0,
+    lastPosition: 0,
+  });
   const [isPressed, setPressed] = useState(false);
 
   const containerWidthRef = useRef(0);
@@ -94,22 +98,22 @@ const Slider: React.FC<SliderProps> = ({
     inPropsRef,
     containerWidthRef,
     thumbWidth,
-    disableRange,
+    disableRange
   );
 
   const updateThumbs = useCallback(() => {
-    const {current: containerWidth} = containerWidthRef;
+    const { current: containerWidth } = containerWidthRef;
     if (!thumbWidth || !containerWidth) {
       return;
     }
-    const {low, high} = inPropsRef.current;
+    const { low, high } = inPropsRef.current;
     if (!disableRange) {
-      const {current: highThumbX} = highThumbXRef;
+      const { current: highThumbX } = highThumbXRef;
       const highPosition =
         ((high - min) / (max - min)) * (containerWidth - thumbWidth);
       highThumbX.setValue(highPosition);
     }
-    const {current: lowThumbX} = lowThumbXRef;
+    const { current: lowThumbX } = lowThumbXRef;
     const lowPosition =
       ((low - min) / (max - min)) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
@@ -126,7 +130,7 @@ const Slider: React.FC<SliderProps> = ({
   ]);
 
   useEffect(() => {
-    const {lowPrev, highPrev} = inPropsRefPrev;
+    const { lowPrev, highPrev } = inPropsRefPrev;
     if (
       (lowProp !== undefined && lowProp !== lowPrev) ||
       (highProp !== undefined && highProp !== highPrev)
@@ -141,29 +145,32 @@ const Slider: React.FC<SliderProps> = ({
 
   const handleContainerLayout = useWidthLayout(containerWidthRef, updateThumbs);
   const handleThumbLayout = useCallback(
-    ({nativeEvent}) => {
+    ({ nativeEvent }) => {
       const {
-        layout: {width},
+        layout: { width },
       } = nativeEvent;
       if (thumbWidth !== width) {
         setThumbWidth(width);
       }
     },
-    [thumbWidth],
+    [thumbWidth]
   );
 
   const lowStyles = useMemo(() => {
-    return {transform: [{translateX: lowThumbX}]};
+    return { transform: [{ translateX: lowThumbX }] };
   }, [lowThumbX]);
 
   const highStyles = useMemo(() => {
     return disableRange
       ? null
-      : [styles.highThumbContainer, {transform: [{translateX: highThumbX}]}];
+      : [
+          styles.highThumbContainer,
+          { transform: [{ translateX: highThumbX }] },
+        ];
   }, [disableRange, highThumbX]);
 
   const railContainerStyles = useMemo(() => {
-    return [styles.railsContainer, {marginHorizontal: thumbWidth / 2}];
+    return [styles.railsContainer, { marginHorizontal: thumbWidth / 2 }];
   }, [thumbWidth]);
 
   const [labelView, labelUpdate] = useThumbFollower(
@@ -171,24 +178,24 @@ const Slider: React.FC<SliderProps> = ({
     gestureStateRef,
     renderLabel,
     isPressed,
-    allowLabelOverflow,
+    allowLabelOverflow
   );
   const [notchView, notchUpdate] = useThumbFollower(
     containerWidthRef,
     gestureStateRef,
     renderNotch,
     isPressed,
-    allowLabelOverflow,
+    allowLabelOverflow
   );
   const lowThumb = renderThumb('low');
   const highThumb = renderThumb('high');
 
   const labelContainerProps = useLabelContainerProps(floatingLabel);
 
-  const {panHandlers} = useMemo(
+  const { panHandlers } = useMemo(
     () =>
       PanResponder.create({
-        onStartShouldSetPanResponderCapture: falseFunc,
+        onStartShouldSetPanResponderCapture: trueFunc,
         onMoveShouldSetPanResponderCapture: falseFunc,
         onPanResponderTerminationRequest: falseFunc,
         onPanResponderTerminate: trueFunc,
@@ -196,24 +203,24 @@ const Slider: React.FC<SliderProps> = ({
 
         onMoveShouldSetPanResponder: (
           evt: GestureResponderEvent,
-          gestureState: PanResponderGestureState,
+          gestureState: PanResponderGestureState
         ) => Math.abs(gestureState.dx) > 2 * Math.abs(gestureState.dy),
 
-        onPanResponderGrant: ({nativeEvent}, gestureState) => {
+        onPanResponderGrant: ({ nativeEvent }, gestureState) => {
           if (disabled) {
             return;
           }
-          const {numberActiveTouches} = gestureState;
+          const { numberActiveTouches } = gestureState;
           if (numberActiveTouches > 1) {
             return;
           }
           setPressed(true);
-          const {current: lowThumbX} = lowThumbXRef;
-          const {current: highThumbX} = highThumbXRef;
-          const {locationX: downX, pageX} = nativeEvent;
+          const { current: lowThumbX } = lowThumbXRef;
+          const { current: highThumbX } = highThumbXRef;
+          const { locationX: downX, pageX } = nativeEvent;
           const containerX = pageX - downX;
 
-          const {low, high, min, max} = inPropsRef.current;
+          const { low, high, min, max } = inPropsRef.current;
           onSliderTouchStart?.(low, high);
           const containerWidth = containerWidthRef.current;
 
@@ -229,7 +236,7 @@ const Slider: React.FC<SliderProps> = ({
           gestureStateRef.current.isLow = isLow;
 
           const handlePositionChange = (positionInView: number) => {
-            const {low, high, min, max, step} = inPropsRef.current;
+            const { low, high, min, max, step } = inPropsRef.current;
             const minValue = isLow ? min : low + minRange;
             const maxValue = isLow ? high - minRange : max;
             const value = clamp(
@@ -239,10 +246,10 @@ const Slider: React.FC<SliderProps> = ({
                 thumbWidth,
                 min,
                 max,
-                step,
+                step
               ),
               minValue,
-              maxValue,
+              maxValue
             );
             if (gestureStateRef.current.lastValue === value) {
               return;
@@ -257,14 +264,14 @@ const Slider: React.FC<SliderProps> = ({
             onValueChanged?.(isLow ? value : low, isLow ? high : value, true);
             (isLow ? setLow : setHigh)(value);
             labelUpdate &&
-            labelUpdate(gestureStateRef.current.lastPosition, value);
+              labelUpdate(gestureStateRef.current.lastPosition, value);
             notchUpdate &&
-            notchUpdate(gestureStateRef.current.lastPosition, value);
+              notchUpdate(gestureStateRef.current.lastPosition, value);
             updateSelectedRail();
           };
           handlePositionChange(downX);
           pointerX.removeAllListeners();
-          pointerX.addListener(({value: pointerPosition}) => {
+          pointerX.addListener(({ value: pointerPosition }) => {
             const positionInView = pointerPosition - containerX;
             handlePositionChange(positionInView);
           });
@@ -272,11 +279,13 @@ const Slider: React.FC<SliderProps> = ({
 
         onPanResponderMove: disabled
           ? undefined
-          : Animated.event([null, {moveX: pointerX}], {useNativeDriver: false}),
+          : Animated.event([null, { moveX: pointerX }], {
+              useNativeDriver: false,
+            }),
 
         onPanResponderRelease: () => {
           setPressed(false);
-          const {low, high} = inPropsRef.current;
+          const { low, high } = inPropsRef.current;
           onSliderTouchEnd?.(low, high);
         },
       }),
@@ -292,7 +301,7 @@ const Slider: React.FC<SliderProps> = ({
       labelUpdate,
       notchUpdate,
       updateSelectedRail,
-    ],
+    ]
   );
 
   return (
