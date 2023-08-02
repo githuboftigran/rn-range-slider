@@ -47,7 +47,7 @@ const handleValueChange = useCallback((low, high) => {
 
 ...
 
-<Slider
+<RangeSlider
   style={styles.slider}
   min={0}
   max={100}
