@@ -26,4 +26,7 @@ export default StyleSheet.create({
   touchableArea: {
     ...StyleSheet.absoluteFillObject,
   },
+  thumbTrackingValueText: {
+    color: 'black',
+  }
 });

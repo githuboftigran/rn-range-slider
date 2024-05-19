@@ -14,6 +14,8 @@ import {
   PanResponderGestureState,
   View,
   ViewProps,
+  Text,
+  TextStyle,
 } from 'react-native';
 
 import styles from './styles';
@@ -41,6 +43,8 @@ export interface SliderProps extends ViewProps {
   disableRange?: boolean;
   disabled?: boolean;
   floatingLabel?: boolean;
+  thumbTrackingValue?: boolean;
+  thumbTrackingValueStyle?: TextStyle;
   renderLabel?: (value: number) => ReactNode;
   renderNotch?: (value: number) => ReactNode;
   renderRail: () => ReactNode;
@@ -58,6 +62,8 @@ const Slider: React.FC<SliderProps> = ({
   low: lowProp,
   high: highProp,
   floatingLabel = false,
+  thumbTrackingValue = false,
+  thumbTrackingValueStyle,
   allowLabelOverflow = false,
   disableRange = false,
   disabled = false,
@@ -297,10 +303,13 @@ const Slider: React.FC<SliderProps> = ({
 
   return (
     <View {...restProps}>
-      <View {...labelContainerProps}>
+      {!thumbTrackingValue && 
+      (<View {...labelContainerProps}>
         {labelView}
         {notchView}
-      </View>
+      </View>)
+      }
+      
       <View onLayout={handleContainerLayout} style={styles.controlsContainer}>
         <View style={railContainerStyles}>
           {renderRail()}
@@ -309,10 +318,20 @@ const Slider: React.FC<SliderProps> = ({
           </Animated.View>
         </View>
         <Animated.View style={lowStyles} onLayout={handleThumbLayout}>
+          {thumbTrackingValue && (<Text style={[styles.thumbTrackingValueText, thumbTrackingValueStyle]}>
+              {inPropsRef.current.low}
+            </Text>)}
           {lowThumb}
         </Animated.View>
+
         {!disableRange && (
-          <Animated.View style={highStyles}>{highThumb}</Animated.View>
+          <Animated.View style={highStyles}>
+            {thumbTrackingValue && (<Text style={[styles.thumbTrackingValueText, thumbTrackingValueStyle]}>
+              {inPropsRef.current.high}
+            </Text>)}
+            
+            {highThumb}
+        </Animated.View>
         )}
         <View
           {...panHandlers}
