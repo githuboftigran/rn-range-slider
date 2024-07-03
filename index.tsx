@@ -25,11 +25,14 @@ import {
   useSelectedRail,
 } from './hooks';
 import {clamp, getValueForPosition, isLowCloser} from './helpers';
+import { useFocusEffect } from '@react-navigation/native';
 
 const trueFunc = () => true;
 const falseFunc = () => false;
 
 export interface SliderProps extends ViewProps {
+  initialLowValue?: number;
+  initialHighValue?: number;
   min: number;
   max: number;
   minRange?: number;
@@ -53,6 +56,8 @@ export interface SliderProps extends ViewProps {
 const Slider: React.FC<SliderProps> = ({
   min,
   max,
+  initialLowValue,
+  initialHighValue,
   minRange = 0,
   step,
   low: lowProp,
@@ -78,12 +83,16 @@ const Slider: React.FC<SliderProps> = ({
     max,
     step,
   );
+
   const lowThumbXRef = useRef(new Animated.Value(0));
+
   const highThumbXRef = useRef(new Animated.Value(0));
+
   const pointerX = useRef(new Animated.Value(0)).current;
+  
   const {current: lowThumbX} = lowThumbXRef;
   const {current: highThumbX} = highThumbXRef;
-
+  
   const gestureStateRef = useRef({isLow: true, lastValue: 0, lastPosition: 0});
   const [isPressed, setPressed] = useState(false);
 
@@ -97,24 +106,35 @@ const Slider: React.FC<SliderProps> = ({
     disableRange,
   );
 
+
   const updateThumbs = useCallback(() => {
     const {current: containerWidth} = containerWidthRef;
     if (!thumbWidth || !containerWidth) {
       return;
     }
-    const {low, high} = inPropsRef.current;
+ 
+    if(initialHighValue && initialLowValue) {
+      inPropsRef.current.low = initialLowValue;
+      inPropsRef.current.high = initialHighValue
+    }
+    const low =  inPropsRef.current.low;
+    const high = inPropsRef.current.high;
+    console.log(low, high, max, min)
+
     if (!disableRange) {
       const {current: highThumbX} = highThumbXRef;
       const highPosition =
         ((high - min) / (max - min)) * (containerWidth - thumbWidth);
       highThumbX.setValue(highPosition);
+
     }
     const {current: lowThumbX} = lowThumbXRef;
     const lowPosition =
       ((low - min) / (max - min)) * (containerWidth - thumbWidth);
     lowThumbX.setValue(lowPosition);
-    updateSelectedRail();
+    updateSelectedRail()
     onValueChanged?.(low, high, false);
+
   }, [
     disableRange,
     inPropsRef,
@@ -125,19 +145,24 @@ const Slider: React.FC<SliderProps> = ({
     updateSelectedRail,
   ]);
 
+
   useEffect(() => {
     const {lowPrev, highPrev} = inPropsRefPrev;
+   
     if (
       (lowProp !== undefined && lowProp !== lowPrev) ||
       (highProp !== undefined && highProp !== highPrev)
     ) {
       updateThumbs();
     }
-  }, [highProp, inPropsRefPrev.lowPrev, inPropsRefPrev.highPrev, lowProp]);
-
+  }, [highProp
+    , inPropsRefPrev.lowPrev, 
+    inPropsRefPrev.highPrev, lowProp, initialHighValue, initialLowValue]);
+ 
   useEffect(() => {
     updateThumbs();
-  }, [updateThumbs]);
+  }, [updateThumbs, initialHighValue, initialLowValue]);
+ 
 
   const handleContainerLayout = useWidthLayout(containerWidthRef, updateThumbs);
   const handleThumbLayout = useCallback(
@@ -294,6 +319,9 @@ const Slider: React.FC<SliderProps> = ({
       updateSelectedRail,
     ],
   );
+
+
+
 
   return (
     <View {...restProps}>
