@@ -10,7 +10,11 @@ export default StyleSheet.create({
     position: 'absolute',
   },
   railsContainer: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -24,6 +28,10 @@ export default StyleSheet.create({
     alignItems: I18nManager.isRTL ? 'flex-end' : "flex-start",
   },
   touchableArea: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
 });
